@@ -940,28 +940,56 @@ async function copyText(t) {
   } catch (e) { return false; }
 }
 
-/* ---------- Build the page ---------- */
+/* ---------- Icons ---------- */
+const svg = (d) => '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + d + '</svg>';
+const IC = {
+  save: svg('<path d="M6 3h12a1 1 0 0 1 1 1v17l-7-4-7 4V4a1 1 0 0 1 1-1z"/>'),
+  copy: svg('<rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/>'),
+  replay: svg('<path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/>'),
+  download: svg('<path d="M12 4v11"/><path d="m7 11 5 5 5-5"/><path d="M5 20h14"/>'),
+  desk: svg('<rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/>'),
+  tab: svg('<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M11 18h2"/>'),
+  mob: svg('<rect x="8" y="3" width="8" height="18" rx="2"/><path d="M11 18h2"/>'),
+  check: svg('<path d="m5 12 5 5 9-10"/>'),
+  sun: svg('<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>'),
+  moon: svg('<path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5z"/>')
+};
+
+/* ---------- State and helpers ---------- */
 const list = document.getElementById('list');
 const toc = document.getElementById('toc');
 const qEl = document.getElementById('q');
 const emptyEl = document.getElementById('empty');
+const favBtn = document.getElementById('favbtn');
+const favCount = document.getElementById('favcount');
+const toastEl = document.getElementById('toast');
 const state = { cat: 'All', q: '' };
 let favs = new Set();
 try { favs = new Set(JSON.parse(localStorage.getItem('bench-fav') || '[]')); } catch (e) {}
-const toastEl = document.getElementById('toast');
+function saveFavs() { try { localStorage.setItem('bench-fav', JSON.stringify([...favs])); } catch (e) {} }
+
 let toastT;
 function toast(m) {
-  toastEl.textContent = m; toastEl.classList.add('on');
-  clearTimeout(toastT); toastT = setTimeout(() => toastEl.classList.remove('on'), 1800);
+  toastEl.innerHTML = IC.check + '<span></span>';
+  toastEl.querySelector('span').textContent = m;
+  toastEl.classList.add('on');
+  clearTimeout(toastT); toastT = setTimeout(() => toastEl.classList.remove('on'), 2000);
 }
-function saveFavs() { try { localStorage.setItem('bench-fav', JSON.stringify([...favs])); } catch (e) {} }
+function burst(btn) {
+  for (let i = 0; i < 10; i++) {
+    const p = document.createElement('i'); p.className = 'spark';
+    const a = (Math.PI * 2 * i) / 10 + Math.random() * 0.5, d = 22 + Math.random() * 16;
+    p.style.setProperty('--dx', Math.cos(a) * d + 'px'); p.style.setProperty('--dy', Math.sin(a) * d + 'px');
+    btn.appendChild(p); setTimeout(() => p.remove(), 700);
+  }
+}
 function paintStars() {
   list.querySelectorAll('.item').forEach((s) => {
     const on = favs.has(s.dataset.id), b = s.querySelector('.star');
-    b.classList.toggle('on', on); b.textContent = on ? 'Saved' : 'Save';
+    b.classList.toggle('on', on); b.setAttribute('aria-pressed', String(on)); b.dataset.tip = on ? 'Saved' : 'Save';
   });
-  const st = document.getElementById('stats');
-  st.innerHTML = '';
+  favCount.textContent = favs.size; favCount.classList.toggle('has', favs.size > 0);
+  const st = document.getElementById('stats'); st.innerHTML = '';
   [ITEMS.length + ' components', new Set(ITEMS.map((i) => i.cat)).size + ' categories', favs.size + ' saved'].forEach((t) => {
     const e = document.createElement('span'); e.textContent = t; st.appendChild(e);
   });
@@ -975,6 +1003,12 @@ function apply() {
   });
   emptyEl.hidden = n > 0;
 }
+function setCat(c) {
+  state.cat = c;
+  toc.querySelectorAll('button').forEach((x) => x.setAttribute('aria-pressed', String(x.textContent === c)));
+  favBtn.classList.toggle('on', c === 'Favorites');
+  apply();
+}
 function download(it, files) {
   const js = files.JS ? '<script>\n' + files.JS + '\n<\/script>\n' : '';
   const doc = '<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1">\n<title>' + it.title + '</title>\n<style>\nbody{margin:0}\n' + files.CSS + '\n</style>\n</head>\n<body>\n' + files.HTML + '\n' + js + '</body>\n</html>\n';
@@ -984,24 +1018,44 @@ function download(it, files) {
   setTimeout(() => URL.revokeObjectURL(a.href), 1000);
 }
 
-ITEMS.forEach((it) => {
-
+/* ---------- Build the cards ---------- */
+const SPANS = ['w7', 'w5', 'w5', 'w7'];
+ITEMS.forEach((it, i) => {
   const files = { HTML: it.html, CSS: it.css };
   if (it.js) files.JS = it.js.toString() + '\n\n' + it.js.name + '();';
   const tabs = Object.keys(files);
   let active = 'HTML';
 
   const sec = document.createElement('section');
-  sec.className = 'item'; sec.id = it.id;
-  sec.innerHTML = '<div class="head"><div><h2></h2><p class="d"></p></div><div class="acts"><button class="act star" type="button">Save</button><button class="act copyall" type="button">Copy all</button><button class="act replay" type="button">Replay</button><button class="act dl" type="button">Download</button></div></div><div class="split"><div class="preview"><div class="pbar"><button type="button" data-w="100%" class="on" aria-pressed="true">Desktop</button><button type="button" data-w="420px" aria-pressed="false">Tablet</button><button type="button" data-w="300px" aria-pressed="false">Mobile</button></div><div class="pstage"><div class="host"></div></div></div>' +
-    '<div class="code"><div class="bar"><div class="dots"><i></i><i></i><i></i></div><div class="tabs" role="tablist" style="display:flex"></div>' +
-    '<button class="copy" type="button">Copy</button></div><pre><code></code></pre></div></div>';
+  sec.className = 'item ' + SPANS[i % 4]; sec.id = it.id;
+  sec.dataset.id = it.id; sec.dataset.cat = it.cat;
+  sec.dataset.q = (it.title + ' ' + it.desc + ' ' + it.cat).toLowerCase();
+  sec.innerHTML =
+    '<div class="meta"><h2></h2><p class="d"></p></div>' +
+    '<div class="win">' +
+      '<div class="win-bar"><span class="lights"><i></i><i></i><i></i></span><span class="win-title"></span>' +
+        '<div class="seg" role="group" aria-label="Preview size"><span class="seg-pill"></span>' +
+          '<button type="button" data-w="100%" aria-pressed="true" aria-label="Desktop">' + IC.desk + '</button>' +
+          '<button type="button" data-w="420px" aria-pressed="false" aria-label="Tablet">' + IC.tab + '</button>' +
+          '<button type="button" data-w="300px" aria-pressed="false" aria-label="Mobile">' + IC.mob + '</button>' +
+        '</div></div>' +
+      '<div class="pstage"><div class="host"></div></div>' +
+      '<div class="deck">' +
+        '<button class="ic star" type="button" data-tip="Save" aria-label="Save component">' + IC.save + '</button>' +
+        '<button class="ic copyall" type="button" data-tip="Copy all" aria-label="Copy HTML, CSS and JS">' + IC.copy + '</button>' +
+        '<button class="ic replay" type="button" data-tip="Replay" aria-label="Replay preview">' + IC.replay + '</button>' +
+        '<button class="ic dl" type="button" data-tip="Download .html" aria-label="Download as HTML file">' + IC.download + '</button>' +
+      '</div>' +
+    '</div>' +
+    '<div class="code"><div class="bar"><div class="tabs" role="tablist"><span class="glide"></span></div>' +
+      '<button class="copy" type="button"></button></div><pre><code></code></pre></div>';
   const h2 = sec.querySelector('h2'); h2.textContent = it.title;
   const bd = document.createElement('span'); bd.className = 'badge'; bd.textContent = it.cat; h2.appendChild(bd);
   sec.querySelector('.d').textContent = it.desc;
+  sec.querySelector('.win-title').textContent = it.id + '.html';
   list.appendChild(sec);
 
-  // Live preview inside a shadow root so the snippet CSS is exactly what renders
+  // Live preview in a shadow root so the snippet CSS is exactly what renders
   const host = sec.querySelector('.host');
   const shadow = host.attachShadow({ mode: 'open' });
   const mount = () => {
@@ -1009,18 +1063,31 @@ ITEMS.forEach((it) => {
     if (it.js) it.js(shadow);
   };
   mount();
-  sec.querySelectorAll('.pbar button').forEach((b) => b.addEventListener('click', () => {
-    sec.querySelectorAll('.pbar button').forEach((x) => { x.classList.toggle('on', x === b); x.setAttribute('aria-pressed', String(x === b)); });
+
+  // Viewport switch with a sliding pill
+  const seg = sec.querySelector('.seg');
+  seg.querySelectorAll('button').forEach((b, idx) => b.addEventListener('click', () => {
+    seg.querySelectorAll('button').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+    seg.style.setProperty('--i', idx);
     host.style.maxWidth = b.dataset.w;
   }));
 
+  // Code tabs with a gliding underline
   const tabBox = sec.querySelector('.tabs');
+  const glide = sec.querySelector('.glide');
   const codeEl = sec.querySelector('code');
   codeEl.parentNode.tabIndex = 0; codeEl.parentNode.setAttribute('aria-label', it.title + ' code');
   const copyBtn = sec.querySelector('.copy');
+  copyBtn.innerHTML = IC.copy + '<span>Copy</span>';
+  function moveGlide() {
+    const b = tabBox.querySelector('[aria-selected="true"]'); if (!b) return;
+    glide.style.setProperty('--x', b.offsetLeft + 'px'); glide.style.setProperty('--w', b.offsetWidth + 'px');
+  }
+  sec._glide = moveGlide;
   function show() {
-    codeEl.innerHTML = HL[active](files[active]).split('\n').map((l) => '<span class="ln">' + l + '</span>').join('\n');
-    tabBox.querySelectorAll('.tab').forEach((b) => b.setAttribute('aria-selected', b.dataset.t === active));
+    codeEl.innerHTML = HL[active](files[active]).split('\n').map((l) => '<span class="ln">' + l + '</span>').join('');
+    tabBox.querySelectorAll('.tab').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.t === active)));
+    moveGlide();
   }
   tabs.forEach((t) => {
     const b = document.createElement('button');
@@ -1030,16 +1097,17 @@ ITEMS.forEach((it) => {
   });
   copyBtn.addEventListener('click', async () => {
     const ok = await copyText(files[active]);
-    copyBtn.textContent = ok ? 'Copied!' : 'Press Ctrl+C';
-    copyBtn.classList.toggle('ok', ok);
-    setTimeout(() => { copyBtn.textContent = 'Copy'; copyBtn.classList.remove('ok'); }, 1500);
+    if (!ok) { toast('Copy failed. Select the code instead.'); return; }
+    copyBtn.classList.remove('ok'); void copyBtn.offsetWidth; copyBtn.classList.add('ok');
+    copyBtn.innerHTML = IC.check + '<span>Copied</span>'; burst(copyBtn);
+    setTimeout(() => { copyBtn.classList.remove('ok'); copyBtn.innerHTML = IC.copy + '<span>Copy</span>'; }, 1600);
   });
-  sec.dataset.id = it.id; sec.dataset.cat = it.cat;
-  sec.dataset.q = (it.title + ' ' + it.desc + ' ' + it.cat).toLowerCase();
+
+  // Action deck
   sec.querySelector('.star').addEventListener('click', () => {
     if (favs.has(it.id)) favs.delete(it.id); else favs.add(it.id);
     saveFavs(); paintStars(); apply();
-    toast(favs.has(it.id) ? 'Saved to favorites' : 'Removed from favorites');
+    toast(favs.has(it.id) ? 'Saved to your list' : 'Removed from your list');
   });
   sec.querySelector('.replay').addEventListener('click', mount);
   sec.querySelector('.dl').addEventListener('click', () => { download(it, files); toast('Downloaded ' + it.id + '.html'); });
@@ -1047,33 +1115,45 @@ ITEMS.forEach((it) => {
     const all = files.HTML + '\n\n<style>\n' + files.CSS + '\n</style>' + (files.JS ? '\n\n<script>\n' + files.JS + '\n<\/script>' : '');
     toast((await copyText(all)) ? 'Copied HTML, CSS and JS' : 'Copy failed. Select the code instead.');
   });
+
+  // Cursor-tracking glow
+  sec.addEventListener('pointermove', (e) => {
+    const r = sec.getBoundingClientRect();
+    sec.style.setProperty('--mx', (e.clientX - r.left) + 'px'); sec.style.setProperty('--my', (e.clientY - r.top) + 'px');
+  });
   show();
 });
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => list.querySelectorAll('.item').forEach((s) => s._glide && s._glide()));
 
 /* ---------- Search and filters ---------- */
 ['All', ...new Set(ITEMS.map((i) => i.cat)), 'Favorites'].forEach((c) => {
   const b = document.createElement('button');
   b.type = 'button'; b.textContent = c; b.setAttribute('aria-pressed', String(c === 'All'));
-  b.addEventListener('click', () => {
-    state.cat = c;
-    toc.querySelectorAll('button').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
-    apply();
-  });
+  b.addEventListener('click', () => setCat(c));
   toc.appendChild(b);
 });
+favBtn.addEventListener('click', () => setCat(state.cat === 'Favorites' ? 'All' : 'Favorites'));
 qEl.addEventListener('input', () => { state.q = qEl.value.trim().toLowerCase(); apply(); });
 document.addEventListener('keydown', (e) => {
-  if (e.key === '/' && document.activeElement !== qEl && !/^(INPUT|TEXTAREA|SELECT)$/.test((e.composedPath()[0] || {}).tagName || '')) { e.preventDefault(); qEl.focus(); }
+  const typing = /^(INPUT|TEXTAREA|SELECT)$/.test((e.composedPath()[0] || {}).tagName || '');
+  if (((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') || (e.key === '/' && !typing)) { e.preventDefault(); qEl.focus(); qEl.select(); }
   if (e.key === 'Escape' && document.activeElement === qEl) { qEl.value = ''; state.q = ''; apply(); qEl.blur(); }
 });
 paintStars(); apply();
 
-/* ---------- Theme ---------- */
+/* ---------- Theme (dark by default) ---------- */
 const root = document.documentElement;
-try { const s = localStorage.getItem('bench-theme'); if (s) root.setAttribute('data-theme', s); } catch (e) {}
-document.getElementById('theme').addEventListener('click', () => {
-  const dark = root.getAttribute('data-theme') ? root.getAttribute('data-theme') === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
-  const next = dark ? 'light' : 'dark';
+const themeBtn = document.getElementById('theme');
+try { const t = localStorage.getItem('bench-theme'); if (t) root.setAttribute('data-theme', t); } catch (e) {}
+function paintTheme() {
+  const dark = root.getAttribute('data-theme') !== 'light';
+  themeBtn.innerHTML = dark ? IC.sun : IC.moon;
+  themeBtn.setAttribute('aria-label', dark ? 'Switch to light theme' : 'Switch to dark theme');
+}
+themeBtn.addEventListener('click', () => {
+  const next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
   root.setAttribute('data-theme', next);
   try { localStorage.setItem('bench-theme', next); } catch (e) {}
+  paintTheme();
 });
+paintTheme();
