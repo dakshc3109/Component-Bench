@@ -66,7 +66,20 @@ Component Bench is a small, dependency-free web project built with:
 - **CSS** for the site, animations, themes, and component previews
 - **Vanilla JavaScript** for rendering, filtering, interactions, and copy tools
 
-The component catalog and its interactions live in `script.js`. Component styles live in marked blocks in `styles.css`; the app loads those styles into each preview and exposes them in the code viewer.
+The app is split into small ES modules under `app/`, with `script.js` as the entry point. Every preview has its own folder under `components/`, containing its metadata, markup, interaction logic, and stylesheet. Component styles are loaded into each preview and shown in the code viewer.
+
+```text
+app/                  Gallery, code tools, theme, and motion modules
+components/
+  index.js            Component catalog
+  glass/
+    index.js          Component metadata, markup, and behavior
+    styles.css        Styles scoped to the live preview
+  ...                 One folder per component
+script.js             App entry point
+styles.css            Shared site and gallery styles
+index.html            Page structure
+```
 
 ## A little comfort, too
 
