@@ -14,7 +14,7 @@ Explore a hands-on library of interactive UI components. Preview each one, tweak
 
 <br>
 
-[Explore the repository](https://github.com/dakshc3109/Component-Bench)
+[Open Component Bench](https://dakshc3109.github.io/Component-Bench/) · [View the repository](https://github.com/dakshc3109/Component-Bench)
 
 </div>
 
@@ -47,20 +47,6 @@ Explore a hands-on library of interactive UI components. Preview each one, tweak
 | Mobile menu | Modal dialog | Skeleton loading card |
 | Checkout stepper | Dropdown menu | Goal progress ring |
 |  | Toast notification |  |
-
-## Get it running
-
-No package install or build step needed. Serve the project over HTTP so the page can load its component styles:
-
-```bash
-git clone https://github.com/dakshc3109/Component-Bench.git
-cd Component-Bench
-python3 -m http.server 8000
-```
-
-Open [http://localhost:8000](http://localhost:8000) in your browser. You can also use the Live Server extension in VS Code.
-
-> Tip: open the site through a local server rather than opening `index.html` directly. Component previews load their CSS from `styles.css`.
 
 ## Make the most of the bench
 
