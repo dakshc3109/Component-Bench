@@ -1,0 +1,85 @@
+.stepper-stage {
+display: grid;
+place-items: center;
+min-height: 356px;
+padding: 24px;
+background: #f8fafc;
+font-family: Inter,sans-serif;
+}
+.stepper {
+width: min(100%,340px);
+}
+.step-track {
+position: relative;
+display: flex;
+justify-content: space-between;
+margin: 0 8px;
+}
+.step-track::before {
+position: absolute;
+top: 16px;
+right: 16px;
+left: 16px;
+height: 2px;
+background: #e2e8f0;
+content: "";
+}
+.step-point {
+z-index: 1;
+display: grid;
+width: 34px;
+height: 34px;
+place-items: center;
+border: 2px solid #e2e8f0;
+border-radius: 50%;
+background: #fff;
+color: #94a3b8;
+font-size: .8rem;
+font-weight: 700;
+transition: background .25s,border-color .25s,color .25s,transform .25s;
+}
+.step-point.is-current,.step-point.is-complete {
+border-color: #4f46e5;
+background: #4f46e5;
+color: #fff;
+}
+.step-point.is-current {
+transform: scale(1.12);
+box-shadow: 0 0 0 5px rgba(99,102,241,.12);
+}
+.step-point.is-complete {
+animation: step-check .35s cubic-bezier(.16,1,.3,1);
+}
+@keyframes step-check {
+50% { transform: scale(1.18); }
+}
+.step-label {
+min-height: 24px;
+margin: 24px 0;
+color: #475569;
+font-size: .9rem;
+font-weight: 600;
+text-align: center;
+}
+.step-actions {
+display: flex;
+justify-content: space-between;
+}
+.step-actions button {
+padding: 10px 17px;
+border: 1px solid #cbd5e1;
+border-radius: 10px;
+background: #fff;
+color: #334155;
+font: 600 .8rem Inter,sans-serif;
+cursor: pointer;
+}
+.step-actions .step-next {
+border-color: #4f46e5;
+background: #4f46e5;
+color: #fff;
+}
+.step-actions button:disabled {
+opacity: .45;
+cursor: not-allowed;
+}

@@ -1,0 +1,112 @@
+.billing-stage {
+display: grid;
+place-items: center;
+min-height: 356px;
+padding: 20px;
+background: linear-gradient(145deg,#eef2ff,#f8fafc 55%,#ecfeff);
+font-family: Inter,sans-serif;
+}
+.billing-card {
+width: min(100%,320px);
+padding: 22px;
+border: 1px solid #e2e8f0;
+border-radius: 20px;
+background: #fff;
+box-shadow: 0 18px 45px rgba(30,41,59,.1);
+}
+.billing-eyebrow {
+color: #6366f1;
+font-size: .7rem;
+font-weight: 800;
+letter-spacing: .12em;
+}
+.plan-switch {
+display: flex;
+gap: 4px;
+margin-top: 16px;
+padding: 4px;
+border-radius: 11px;
+background: #f1f5f9;
+}
+.plan-option {
+flex: 1;
+padding: 9px 7px;
+border: 0;
+border-radius: 8px;
+background: transparent;
+color: #64748b;
+font: 600 .76rem Inter,sans-serif;
+cursor: pointer;
+transition: transform .2s,background .2s,box-shadow .2s;
+}
+.skeleton-toggle:hover {
+transform: translateY(-2px);
+box-shadow: 0 7px 16px rgba(99,102,241,.15);
+}
+.skeleton-toggle:active {
+transform: scale(.96);
+}
+.skeleton-toggle[aria-pressed="true"] {
+background: #dcfce7;
+border-color: #a7f3d0;
+color: #047857;
+}
+.plan-option[aria-pressed="true"] {
+background: #fff;
+color: #312e81;
+box-shadow: 0 1px 4px rgba(15,23,42,.12);
+}
+.plan-option:active {
+transform: scale(.96);
+}
+.plan-price.price-pop {
+animation: price-pop .35s cubic-bezier(.16,1,.3,1);
+}
+@keyframes price-pop {
+50% { transform: translateY(-3px) scale(1.06); }
+}
+.plan-option span {
+color: #059669;
+font-size: .65rem;
+}
+.billing-price {
+display: flex;
+align-items: baseline;
+gap: 6px;
+margin: 20px 0 0;
+color: #64748b;
+font-size: .82rem;
+}
+.billing-price strong {
+color: #0f172a;
+font-size: 2.4rem;
+letter-spacing: -.06em;
+}
+.plan-billing {
+min-height: 18px;
+margin: 2px 0 18px;
+color: #94a3b8;
+font-size: .72rem;
+}
+.billing-cta {
+width: 100%;
+padding: 11px;
+border: 0;
+border-radius: 10px;
+background: #4f46e5;
+color: #fff;
+font: 600 .85rem Inter,sans-serif;
+cursor: pointer;
+transition: transform .2s,background .2s,box-shadow .2s;
+}
+.billing-cta:hover {
+transform: translateY(-2px);
+box-shadow: 0 8px 20px rgba(79,70,229,.22);
+}
+.billing-cta:active {
+transform: scale(.97);
+}
+.billing-cta.is-selected {
+background: #059669;
+box-shadow: 0 0 0 4px rgba(16,185,129,.13);
+}

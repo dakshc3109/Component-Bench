@@ -1,0 +1,39 @@
+.fl-stage {
+  display: grid;
+  place-items: center;
+  min-height: 356px;
+  background: #f1f5f9;
+}
+.field {
+  position: relative;
+  width: 260px;
+}
+.field input {
+  width: 100%;
+  padding: 22px 14px 8px;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 12px;
+  background: #fff;
+  color: #0f172a;
+  font: 500 1rem Inter,sans-serif;
+  outline: 0;
+  transition: border-color .2s,box-shadow .2s;
+}
+.field label {
+  position: absolute;
+  left: 15px;
+  top: 16px;
+  color: #64748b;
+  font: 400 1rem Inter,sans-serif;
+  pointer-events: none;
+  transform-origin: left top;
+  transition: transform .2s,color .2s;
+}
+.field input:focus {
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 4px rgba(79,70,229,.15);
+}
+.field input:is(:focus, :not(:placeholder-shown)) + label {
+  transform: translateY(-10px) scale(.78);
+  color: #4f46e5;
+}

@@ -1,0 +1,48 @@
+.orbit-stage {
+  display: grid;
+  place-items: center;
+  min-height: 356px;
+  background: #05070d;
+}
+.orbit {
+  position: relative;
+  overflow: hidden;
+  padding: 2px;
+  border: 0;
+  border-radius: 14px;
+  background: none;
+  cursor: pointer;
+  transition: transform .35s cubic-bezier(.16,1,.3,1);
+}
+.orbit::before {
+  content: "";
+  position: absolute;
+  inset: -150%;
+  background: conic-gradient(from 0deg,transparent 0 70%,#22d3ee,#8b5cf6,transparent);
+  animation: orbit-spin 3s linear infinite;
+}
+.orbit span {
+  position: relative;
+  display: block;
+  padding: 14px 38px;
+  border-radius: 12px;
+  background: #0b0f19;
+  color: #fff;
+  font: 600 1rem Inter,sans-serif;
+  transition: background .3s;
+}
+.orbit:hover span {
+  background: #151a2b;
+}
+.orbit:active {
+  transform: scale(.96);
+}
+.orbit:focus-visible {
+  outline: 2px solid #a5b4fc;
+  outline-offset: 4px;
+}
+@keyframes orbit-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

@@ -1,0 +1,29 @@
+.neo-stage {
+  display: grid;
+  place-items: center;
+  min-height: 356px;
+  background: #e0e5ec;
+}
+.neo-btn {
+  padding: 18px 44px;
+  border: 0;
+  border-radius: 18px;
+  color: #4a5568;
+  font: 600 1rem Inter, sans-serif;
+  letter-spacing: .06em;
+  background: #e0e5ec;
+  cursor: pointer;
+  box-shadow: 9px 9px 18px #a3b1c6, -9px -9px 18px #ffffff;
+  transition: box-shadow .2s ease, color .2s ease, transform .2s ease;
+}
+.neo-btn:hover {
+  color: #4f46e5;
+}
+.neo-btn:active {
+  transform: scale(.98);
+  box-shadow: inset 6px 6px 12px #a3b1c6, inset -6px -6px 12px #ffffff;
+}
+.neo-btn:focus-visible {
+  outline: 2px solid #4f46e5;
+  outline-offset: 4px;
+}
