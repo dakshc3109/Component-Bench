@@ -36,6 +36,209 @@ function initRange(root = document) {
   paint();
 }
 
+function initNotice(root = document) {
+  const button = root.querySelector('.notice-trigger');
+  const notice = root.querySelector('.notice');
+  let timer;
+  button.addEventListener('click', () => {
+    button.classList.add('is-saved');
+    button.innerHTML = '<span aria-hidden="true">✓</span> Saved!';
+    notice.classList.add('is-visible');
+    notice.setAttribute('aria-hidden', 'false');
+    clearTimeout(timer);
+    timer = setTimeout(() => {
+      button.classList.remove('is-saved');
+      button.textContent = 'Save changes';
+      notice.classList.remove('is-visible');
+      notice.setAttribute('aria-hidden', 'true');
+    }, 2800);
+  });
+}
+
+function initPassword(root = document) {
+  const input = root.querySelector('.password-input');
+  const button = root.querySelector('.password-toggle');
+  button.addEventListener('click', () => {
+    const visible = input.type === 'password';
+    input.type = visible ? 'text' : 'password';
+    button.textContent = visible ? 'Hide' : 'Show';
+    button.setAttribute('aria-label', visible ? 'Hide password' : 'Show password');
+    button.setAttribute('aria-pressed', String(visible));
+  });
+}
+
+function initSegmented(root = document) {
+  const buttons = [...root.querySelectorAll('.plan-option')];
+  const price = root.querySelector('.plan-price');
+  const billing = root.querySelector('.plan-billing');
+  const choose = root.querySelector('.billing-cta');
+  buttons.forEach((button) => button.addEventListener('click', () => {
+    buttons.forEach((option) => option.setAttribute('aria-pressed', String(option === button)));
+    price.textContent = button.dataset.price;
+    billing.textContent = button.dataset.billing;
+    price.classList.remove('price-pop');
+    void price.offsetWidth;
+    price.classList.add('price-pop');
+  }));
+  choose.addEventListener('click', () => {
+    const selected = choose.classList.toggle('is-selected');
+    choose.textContent = selected ? 'Pro selected ✓' : 'Choose Pro';
+    choose.setAttribute('aria-pressed', String(selected));
+  });
+}
+
+function initStepper(root = document) {
+  const steps = [...root.querySelectorAll('.step-point')];
+  const label = root.querySelector('.step-label');
+  const back = root.querySelector('.step-back');
+  const next = root.querySelector('.step-next');
+  let current = 0;
+  const update = () => {
+    steps.forEach((step, index) => {
+      step.classList.toggle('is-current', index === current);
+      step.classList.toggle('is-complete', index < current);
+      step.textContent = index < current ? '✓' : String(index + 1);
+      if (index === current) step.setAttribute('aria-current', 'step');
+      else step.removeAttribute('aria-current');
+    });
+    label.textContent = 'Step ' + (current + 1) + ' of ' + steps.length + ': ' + steps[current].dataset.label;
+    back.disabled = current === 0;
+    next.disabled = current === steps.length - 1;
+  };
+  back.addEventListener('click', () => {
+    if (current > 0) current--;
+    update();
+  });
+  next.addEventListener('click', () => {
+    if (current < steps.length - 1) current++;
+    update();
+  });
+  update();
+}
+
+function initChecklist(root = document) {
+  const checks = [...root.querySelectorAll('.task-check')];
+  const progress = root.querySelector('.task-progress');
+  const summary = root.querySelector('.task-summary');
+  const update = () => {
+    const completed = checks.filter((check) => check.checked).length;
+    progress.value = completed;
+    summary.textContent = completed + ' of ' + checks.length + ' tasks complete';
+  };
+  checks.forEach((check) => check.addEventListener('change', update));
+  update();
+}
+
+function initSkeleton(root = document) {
+  const card = root.querySelector('.skeleton-card');
+  const button = root.querySelector('.skeleton-toggle');
+  button.addEventListener('click', () => {
+    const loaded = card.classList.toggle('is-loaded');
+    button.textContent = loaded ? 'Show loading state' : 'Load profile';
+    button.setAttribute('aria-pressed', String(loaded));
+  });
+}
+
+function initProduct(root = document) {
+  const quantity = root.querySelector('.product-quantity');
+  const price = root.querySelector('.product-price');
+  const decrease = root.querySelector('.quantity-decrease');
+  const increase = root.querySelector('.quantity-increase');
+  const add = root.querySelector('.product-add');
+  const unitPrice = Number(price.dataset.unitPrice);
+  const minQuantity = Number(quantity.dataset.min);
+  const maxQuantity = Number(quantity.dataset.max);
+  let addTimer;
+  const update = () => {
+    const value = Number(quantity.textContent);
+    decrease.disabled = value <= minQuantity;
+    increase.disabled = value >= maxQuantity;
+    price.textContent = '$' + (unitPrice * value).toFixed(2);
+    if (!add.classList.contains('is-added')) add.textContent = 'Add ' + value + ' to bag';
+  };
+  const animateQuantity = () => {
+    quantity.classList.remove('quantity-pop');
+    price.classList.remove('price-pop');
+    void quantity.offsetWidth;
+    quantity.classList.add('quantity-pop');
+    price.classList.add('price-pop');
+  };
+  decrease.addEventListener('click', () => {
+    quantity.textContent = String(Math.max(Number(quantity.textContent) - 1, minQuantity));
+    update();
+    animateQuantity();
+  });
+  increase.addEventListener('click', () => {
+    quantity.textContent = String(Math.min(Number(quantity.textContent) + 1, maxQuantity));
+    update();
+    animateQuantity();
+  });
+  add.addEventListener('click', () => {
+    add.textContent = 'Added to bag ✓';
+    add.classList.add('is-added');
+    clearTimeout(addTimer);
+    addTimer = setTimeout(() => {
+      add.classList.remove('is-added');
+      update();
+    }, 1400);
+  });
+  update();
+}
+
+function initGoal(root = document) {
+  const ring = root.querySelector('.goal-ring');
+  const value = root.querySelector('.goal-value');
+  const button = root.querySelector('.goal-add');
+  let progress = 65;
+  button.addEventListener('click', () => {
+    progress = Math.min(progress + 5, 100);
+    ring.style.setProperty('--progress', progress + '%');
+    ring.classList.add('goal-progress');
+    value.textContent = progress + '%';
+    value.classList.remove('goal-pop');
+    void value.offsetWidth;
+    value.classList.add('goal-pop');
+    ring.setAttribute('aria-valuenow', String(progress));
+    button.disabled = progress === 100;
+    button.textContent = progress === 100 ? 'Goal reached ✓' : '+5% added ✓';
+    if (progress < 100) {
+      setTimeout(() => { button.textContent = 'Add 5%'; }, 900);
+    }
+  });
+}
+
+function initAvatars(root = document) {
+  const buttons = [...root.querySelectorAll('.team-avatar')];
+  const message = root.querySelector('.team-message');
+  const initialMessage = message.textContent;
+  buttons.forEach((button) => button.addEventListener('click', () => {
+    const isMore = button.classList.contains('team-more');
+    const selected = button.getAttribute('aria-pressed') !== 'true';
+    buttons.forEach((avatar) => {
+      const active = selected && avatar === button;
+      avatar.classList.toggle('is-selected', active);
+      avatar.setAttribute('aria-pressed', String(active));
+    });
+    if (!selected) message.textContent = initialMessage;
+    else message.textContent = isMore ? '3 teammates invited' : button.dataset.name + ' is online';
+  }));
+}
+
+function initMusic(root = document) {
+  const player = root.querySelector('.music-player');
+  const button = root.querySelector('.music-toggle');
+  const status = root.querySelector('.music-status');
+  button.addEventListener('click', () => {
+    const playing = player.classList.toggle('is-playing');
+    button.setAttribute('aria-label', playing ? 'Pause preview' : 'Play preview');
+    button.innerHTML = playing ? '&#10074;&#10074;' : '&#9654;';
+    status.textContent = playing ? 'Now playing' : 'Paused';
+    button.classList.remove('music-pop');
+    void button.offsetWidth;
+    button.classList.add('music-pop');
+  });
+}
+
 /* ---------- Component snippets ---------- */
 const ITEMS = [
 {
@@ -405,10 +608,16 @@ const ITEMS = [
   font: 600 1rem Inter,sans-serif;
   background: #111827;
   cursor: pointer;
-  transition: background .2s;
+  box-shadow: 0 5px 0 #080d18,0 9px 18px rgba(15,23,42,.16);
+  transition: transform .15s cubic-bezier(.16,1,.3,1),background .2s,box-shadow .15s;
 }
 .tip:hover {
   background: #312e81;
+  box-shadow: 0 5px 0 #211e5c,0 12px 22px rgba(49,46,129,.22);
+}
+.tip:active {
+  transform: translateY(4px) scale(.98);
+  box-shadow: 0 1px 0 #080d18,0 3px 8px rgba(15,23,42,.16);
 }
 .tip::after {
   content: attr(data-tip);
@@ -1233,6 +1442,1221 @@ const ITEMS = [
   outline-offset: 6px;
 }`,
   js: initRange
+},
+{
+id: 'notice', cat: 'Overlays', title: 'Toast notification', desc: 'A compact success message that slides into view and dismisses itself.',
+html: `<div class="notice-stage">
+<button class="notice-trigger" type="button">Save changes</button>
+<div class="notice" role="status" aria-live="polite" aria-hidden="true">
+  <span class="notice-icon" aria-hidden="true">✓</span>
+  <span><strong>All set</strong><small>Your changes have been saved.</small></span>
+</div>
+</div>`,
+css: `.notice-stage {
+position: relative;
+display: grid;
+place-items: center;
+min-height: 356px;
+overflow: hidden;
+background: #f1f5f9;
+font-family: Inter,sans-serif;
+}
+.notice-trigger {
+padding: 12px 20px;
+border: 0;
+border-radius: 11px;
+background: #4f46e5;
+color: #fff;
+font: 600 .9rem Inter,sans-serif;
+cursor: pointer;
+box-shadow: 0 8px 20px rgba(79,70,229,.22);
+transition: transform .2s,background .2s,box-shadow .2s;
+}
+.notice-trigger:hover {
+transform: translateY(-2px);
+background: #4338ca;
+box-shadow: 0 12px 25px rgba(79,70,229,.3);
+}
+.notice-trigger:active {
+transform: scale(.96);
+}
+.notice-trigger.is-saved {
+background: #059669;
+box-shadow: 0 0 0 4px rgba(16,185,129,.15);
+animation: notice-pop .35s cubic-bezier(.16,1,.3,1);
+}
+.notice-trigger.is-saved span {
+display: inline-block;
+animation: notice-check .35s cubic-bezier(.16,1,.3,1);
+}
+@keyframes notice-pop {
+50% { transform: scale(1.06); }
+}
+@keyframes notice-check {
+from { transform: scale(0) rotate(-45deg); }
+to { transform: scale(1) rotate(0); }
+}
+.notice {
+position: absolute;
+right: 14px;
+bottom: 14px;
+left: 14px;
+display: flex;
+align-items: center;
+gap: 12px;
+padding: 13px 15px;
+border: 1px solid #dbe4ee;
+border-radius: 14px;
+background: #fff;
+color: #0f172a;
+box-shadow: 0 16px 40px rgba(15,23,42,.14);
+opacity: 0;
+transform: translateY(12px);
+pointer-events: none;
+transition: opacity .3s,transform .45s cubic-bezier(.16,1,.3,1);
+}
+.notice.is-visible {
+opacity: 1;
+transform: translateY(0);
+}
+.notice-icon {
+display: grid;
+width: 30px;
+height: 30px;
+flex: none;
+place-items: center;
+border-radius: 50%;
+background: #dcfce7;
+color: #16a34a;
+font-weight: 700;
+}
+.notice strong,.notice small {
+display: block;
+}
+.notice strong {
+font-size: .86rem;
+}
+.notice small {
+margin-top: 2px;
+color: #64748b;
+font-size: .76rem;
+}`,
+js: initNotice
+},
+{
+id: 'password', cat: 'Inputs', title: 'Password field', desc: 'A clean password input with an accessible show and hide control.',
+html: `<div class="password-stage">
+<label class="password-field">
+  <span>Password</span>
+  <span class="password-wrap">
+    <input class="password-input" type="password" value="benchmarks" autocomplete="new-password">
+    <button class="password-toggle" type="button" aria-label="Show password" aria-pressed="false">Show</button>
+  </span>
+  <small>Use at least 8 characters.</small>
+</label>
+</div>`,
+css: `.password-stage {
+display: grid;
+place-items: center;
+min-height: 356px;
+padding: 24px;
+background: #f8fafc;
+font-family: Inter,sans-serif;
+}
+.password-field {
+display: grid;
+width: min(100%,320px);
+gap: 9px;
+color: #1e293b;
+font-size: .85rem;
+font-weight: 600;
+}
+.password-wrap {
+display: flex;
+align-items: center;
+height: 48px;
+padding: 0 5px 0 13px;
+border: 1px solid #cbd5e1;
+border-radius: 12px;
+background: #fff;
+transition: border-color .2s,box-shadow .2s;
+}
+.password-wrap:focus-within {
+border-color: #6366f1;
+box-shadow: 0 0 0 4px rgba(99,102,241,.14);
+}
+.password-input {
+width: 100%;
+min-width: 0;
+border: 0;
+outline: 0;
+background: transparent;
+color: #0f172a;
+font: 500 .95rem Inter,sans-serif;
+}
+.password-toggle {
+padding: 7px 9px;
+border: 0;
+border-radius: 8px;
+background: #eef2ff;
+color: #4f46e5;
+font: 600 .75rem Inter,sans-serif;
+cursor: pointer;
+transition: transform .2s,background .2s;
+}
+.password-toggle:hover {
+background: #e0e7ff;
+}
+.password-toggle:active {
+transform: scale(.92);
+}
+.password-toggle[aria-pressed="true"] {
+background: #4f46e5;
+color: #fff;
+}
+.password-field small {
+color: #64748b;
+font-size: .76rem;
+font-weight: 400;
+}`,
+js: initPassword
+},
+{
+id: 'segmented', cat: 'Inputs', title: 'Billing switcher', desc: 'Switch between monthly and yearly plans with an updating price.',
+html: `<div class="billing-stage">
+<div class="billing-card">
+  <span class="billing-eyebrow">PRO PLAN</span>
+  <div class="plan-switch" role="group" aria-label="Billing period">
+    <button class="plan-option" type="button" data-price="$12" data-billing="per month, billed monthly" aria-pressed="true">Monthly</button>
+    <button class="plan-option" type="button" data-price="$9" data-billing="per month, billed yearly" aria-pressed="false">Yearly <span>−25%</span></button>
+  </div>
+  <p class="billing-price"><strong class="plan-price">$12</strong><span>/ month</span></p>
+  <p class="plan-billing">per month, billed monthly</p>
+  <button class="billing-cta" type="button">Choose Pro</button>
+</div>
+</div>`,
+css: `.billing-stage {
+display: grid;
+place-items: center;
+min-height: 356px;
+padding: 20px;
+background: linear-gradient(145deg,#eef2ff,#f8fafc 55%,#ecfeff);
+font-family: Inter,sans-serif;
+}
+.billing-card {
+width: min(100%,320px);
+padding: 22px;
+border: 1px solid #e2e8f0;
+border-radius: 20px;
+background: #fff;
+box-shadow: 0 18px 45px rgba(30,41,59,.1);
+}
+.billing-eyebrow {
+color: #6366f1;
+font-size: .7rem;
+font-weight: 800;
+letter-spacing: .12em;
+}
+.plan-switch {
+display: flex;
+gap: 4px;
+margin-top: 16px;
+padding: 4px;
+border-radius: 11px;
+background: #f1f5f9;
+}
+.plan-option {
+flex: 1;
+padding: 9px 7px;
+border: 0;
+border-radius: 8px;
+background: transparent;
+color: #64748b;
+font: 600 .76rem Inter,sans-serif;
+cursor: pointer;
+transition: transform .2s,background .2s,box-shadow .2s;
+}
+.skeleton-toggle:hover {
+transform: translateY(-2px);
+box-shadow: 0 7px 16px rgba(99,102,241,.15);
+}
+.skeleton-toggle:active {
+transform: scale(.96);
+}
+.skeleton-toggle[aria-pressed="true"] {
+background: #dcfce7;
+border-color: #a7f3d0;
+color: #047857;
+}
+.plan-option[aria-pressed="true"] {
+background: #fff;
+color: #312e81;
+box-shadow: 0 1px 4px rgba(15,23,42,.12);
+}
+.plan-option:active {
+transform: scale(.96);
+}
+.plan-price.price-pop {
+animation: price-pop .35s cubic-bezier(.16,1,.3,1);
+}
+@keyframes price-pop {
+50% { transform: translateY(-3px) scale(1.06); }
+}
+.plan-option span {
+color: #059669;
+font-size: .65rem;
+}
+.billing-price {
+display: flex;
+align-items: baseline;
+gap: 6px;
+margin: 20px 0 0;
+color: #64748b;
+font-size: .82rem;
+}
+.billing-price strong {
+color: #0f172a;
+font-size: 2.4rem;
+letter-spacing: -.06em;
+}
+.plan-billing {
+min-height: 18px;
+margin: 2px 0 18px;
+color: #94a3b8;
+font-size: .72rem;
+}
+.billing-cta {
+width: 100%;
+padding: 11px;
+border: 0;
+border-radius: 10px;
+background: #4f46e5;
+color: #fff;
+font: 600 .85rem Inter,sans-serif;
+cursor: pointer;
+transition: transform .2s,background .2s,box-shadow .2s;
+}
+.billing-cta:hover {
+transform: translateY(-2px);
+box-shadow: 0 8px 20px rgba(79,70,229,.22);
+}
+.billing-cta:active {
+transform: scale(.97);
+}
+.billing-cta.is-selected {
+background: #059669;
+box-shadow: 0 0 0 4px rgba(16,185,129,.13);
+}`,
+js: initSegmented
+},
+{
+id: 'stepper', cat: 'Navigation', title: 'Checkout stepper', desc: 'A clear, keyboard-friendly progress indicator for multi-step flows.',
+html: `<div class="stepper-stage">
+<div class="stepper">
+  <div class="step-track" aria-label="Checkout progress">
+    <span class="step-point" data-label="Details">1</span>
+    <span class="step-point" data-label="Delivery">2</span>
+    <span class="step-point" data-label="Payment">3</span>
+  </div>
+  <p class="step-label" aria-live="polite"></p>
+  <div class="step-actions">
+    <button class="step-back" type="button">Back</button>
+    <button class="step-next" type="button">Continue</button>
+  </div>
+</div>
+</div>`,
+css: `.stepper-stage {
+display: grid;
+place-items: center;
+min-height: 356px;
+padding: 24px;
+background: #f8fafc;
+font-family: Inter,sans-serif;
+}
+.stepper {
+width: min(100%,340px);
+}
+.step-track {
+position: relative;
+display: flex;
+justify-content: space-between;
+margin: 0 8px;
+}
+.step-track::before {
+position: absolute;
+top: 16px;
+right: 16px;
+left: 16px;
+height: 2px;
+background: #e2e8f0;
+content: "";
+}
+.step-point {
+z-index: 1;
+display: grid;
+width: 34px;
+height: 34px;
+place-items: center;
+border: 2px solid #e2e8f0;
+border-radius: 50%;
+background: #fff;
+color: #94a3b8;
+font-size: .8rem;
+font-weight: 700;
+transition: background .25s,border-color .25s,color .25s,transform .25s;
+}
+.step-point.is-current,.step-point.is-complete {
+border-color: #4f46e5;
+background: #4f46e5;
+color: #fff;
+}
+.step-point.is-current {
+transform: scale(1.12);
+box-shadow: 0 0 0 5px rgba(99,102,241,.12);
+}
+.step-point.is-complete {
+animation: step-check .35s cubic-bezier(.16,1,.3,1);
+}
+@keyframes step-check {
+50% { transform: scale(1.18); }
+}
+.step-label {
+min-height: 24px;
+margin: 24px 0;
+color: #475569;
+font-size: .9rem;
+font-weight: 600;
+text-align: center;
+}
+.step-actions {
+display: flex;
+justify-content: space-between;
+}
+.step-actions button {
+padding: 10px 17px;
+border: 1px solid #cbd5e1;
+border-radius: 10px;
+background: #fff;
+color: #334155;
+font: 600 .8rem Inter,sans-serif;
+cursor: pointer;
+}
+.step-actions .step-next {
+border-color: #4f46e5;
+background: #4f46e5;
+color: #fff;
+}
+.step-actions button:disabled {
+opacity: .45;
+cursor: not-allowed;
+}`,
+js: initStepper
+},
+{
+id: 'checklist', cat: 'Inputs', title: 'Task checklist', desc: 'A satisfying checklist with a live completion meter and progress summary.',
+html: `<div class="tasks-stage">
+<div class="tasks-card">
+  <div class="tasks-heading"><span>Launch checklist</span><span class="task-summary" aria-live="polite"></span></div>
+  <progress class="task-progress" max="3" value="1" aria-label="Tasks completed"></progress>
+  <label class="task-row"><input class="task-check" type="checkbox" checked><span>Choose a template</span></label>
+  <label class="task-row"><input class="task-check" type="checkbox"><span>Customize your colors</span></label>
+  <label class="task-row"><input class="task-check" type="checkbox"><span>Publish your page</span></label>
+</div>
+</div>`,
+css: `.tasks-stage {
+display: grid;
+place-items: center;
+min-height: 356px;
+padding: 20px;
+background: #eef2ff;
+font-family: Inter,sans-serif;
+}
+.tasks-card {
+width: min(100%,340px);
+padding: 20px;
+border: 1px solid #e0e7ff;
+border-radius: 18px;
+background: #fff;
+box-shadow: 0 14px 36px rgba(49,46,129,.1);
+}
+.tasks-heading {
+display: flex;
+justify-content: space-between;
+gap: 8px;
+margin-bottom: 12px;
+color: #1e293b;
+font-size: .86rem;
+font-weight: 700;
+}
+.task-summary {
+color: #6366f1;
+font-size: .68rem;
+font-weight: 600;
+}
+.task-progress {
+display: block;
+width: 100%;
+height: 7px;
+margin-bottom: 13px;
+overflow: hidden;
+border: 0;
+border-radius: 99px;
+background: #e2e8f0;
+accent-color: #6366f1;
+}
+.task-progress::-webkit-progress-bar {
+border-radius: 99px;
+background: #e2e8f0;
+}
+.task-progress::-webkit-progress-value {
+border-radius: 99px;
+background: linear-gradient(90deg,#6366f1,#22d3ee);
+transition: width .3s;
+}
+.task-row {
+display: flex;
+align-items: center;
+gap: 10px;
+padding: 11px 0;
+border-top: 1px solid #f1f5f9;
+color: #475569;
+font-size: .78rem;
+cursor: pointer;
+}
+.task-row input {
+width: 17px;
+height: 17px;
+margin: 0;
+accent-color: #6366f1;
+}
+.task-row input:checked + span {
+color: #94a3b8;
+text-decoration: line-through;
+}
+.task-row input:checked {
+animation: task-check .3s cubic-bezier(.16,1,.3,1);
+}
+@keyframes task-check {
+50% { transform: scale(1.25); }
+}`,
+js: initChecklist
+},
+{
+id: 'skeleton', cat: 'Layout', title: 'Skeleton loading card', desc: 'A shimmer loading state that smoothly reveals finished profile content.',
+html: `<div class="skeleton-stage">
+<article class="skeleton-card">
+  <div class="skeleton-loading" aria-hidden="true">
+    <span class="skeleton-avatar"></span>
+    <span class="skeleton-lines"><i></i><i></i></span>
+  </div>
+  <div class="skeleton-content">
+    <span class="profile-avatar">JD</span>
+    <span><strong>Jordan Davis</strong><small>Product designer</small></span>
+    <span class="profile-check" aria-label="Verified">✓</span>
+  </div>
+</article>
+<button class="skeleton-toggle" type="button" aria-pressed="false">Load profile</button>
+</div>`,
+css: `.skeleton-stage {
+display: grid;
+align-content: center;
+justify-items: center;
+gap: 20px;
+min-height: 356px;
+padding: 24px;
+background: #f8fafc;
+font-family: Inter,sans-serif;
+}
+.skeleton-card {
+position: relative;
+width: min(100%,330px);
+height: 94px;
+padding: 19px;
+overflow: hidden;
+border: 1px solid #e2e8f0;
+border-radius: 17px;
+background: #fff;
+box-shadow: 0 12px 30px rgba(15,23,42,.06);
+}
+.skeleton-loading,.skeleton-content {
+position: absolute;
+inset: 19px;
+display: flex;
+align-items: center;
+gap: 13px;
+transition: opacity .3s,transform .4s;
+}
+.skeleton-loading {
+opacity: 1;
+}
+.skeleton-avatar,.skeleton-lines i {
+display: block;
+border-radius: 999px;
+background: linear-gradient(100deg,#e2e8f0 25%,#f8fafc 45%,#e2e8f0 65%);
+background-size: 220% 100%;
+animation: skeleton-shimmer 1.5s ease-in-out infinite;
+}
+.skeleton-avatar {
+width: 48px;
+height: 48px;
+flex: none;
+}
+.skeleton-lines {
+display: grid;
+width: 65%;
+gap: 9px;
+}
+.skeleton-lines i {
+height: 10px;
+}
+.skeleton-lines i:last-child {
+width: 65%;
+}
+.skeleton-content {
+opacity: 0;
+transform: translateY(8px);
+}
+.skeleton-content strong,.skeleton-content small {
+display: block;
+}
+.skeleton-content strong {
+color: #0f172a;
+font-size: .84rem;
+}
+.skeleton-content small {
+margin-top: 4px;
+color: #64748b;
+font-size: .72rem;
+}
+.profile-avatar {
+display: grid;
+width: 48px;
+height: 48px;
+flex: none;
+place-items: center;
+border-radius: 50%;
+background: linear-gradient(135deg,#c4b5fd,#67e8f9);
+color: #312e81;
+font-size: .8rem;
+font-weight: 800;
+}
+.profile-check {
+margin-left: auto;
+color: #4f46e5;
+}
+.skeleton-card.is-loaded .skeleton-loading {
+opacity: 0;
+transform: translateY(-8px);
+}
+.skeleton-card.is-loaded .skeleton-content {
+opacity: 1;
+transform: translateY(0);
+}
+.skeleton-toggle {
+padding: 9px 15px;
+border: 1px solid #c7d2fe;
+border-radius: 9px;
+background: #eef2ff;
+color: #4338ca;
+font: 600 .76rem Inter,sans-serif;
+cursor: pointer;
+}
+@keyframes skeleton-shimmer {
+to { background-position: -220% 0; }
+}`,
+js: initSkeleton
+},
+{
+id: 'avatars', cat: 'Cards', title: 'Avatar stack', desc: 'An overlapping team avatar group with a compact member count.',
+html: `<div class="avatars-stage">
+<div class="team-card">
+ <div class="team-avatars" role="group" aria-label="Team members">
+   <button class="team-avatar" type="button" data-name="Alex Morgan" aria-label="Select Alex Morgan" aria-pressed="false">AM</button>
+   <button class="team-avatar" type="button" data-name="Jamie Chen" aria-label="Select Jamie Chen" aria-pressed="false">JC</button>
+   <button class="team-avatar" type="button" data-name="Riley Park" aria-label="Select Riley Park" aria-pressed="false">RP</button>
+   <button class="team-avatar" type="button" data-name="Sam Taylor" aria-label="Select Sam Taylor" aria-pressed="false">ST</button>
+   <button class="team-avatar team-more" type="button" aria-label="Select 3 more team members" aria-pressed="false">+3</button>
+  </div>
+ <div class="team-copy"><strong>Design team</strong><small class="team-message" aria-live="polite">8 members collaborating</small></div>
+  <span class="team-status"><i></i> Active</span>
+</div>
+</div>`,
+css: `.avatars-stage {
+display: grid;
+place-items: center;
+min-height: 356px;
+padding: 20px;
+background: radial-gradient(circle at 15% 15%,#e0e7ff,transparent 45%),#f8fafc;
+font-family: Inter,sans-serif;
+}
+.team-card {
+display: grid;
+grid-template-columns: minmax(0,1fr) auto;
+width: min(100%,360px);
+gap: 14px 12px;
+padding: 20px 18px;
+border: 1px solid rgba(255,255,255,.9);
+border-radius: 20px;
+background: rgba(255,255,255,.82);
+box-shadow: 0 18px 45px rgba(49,46,129,.12);
+}
+.team-avatars {
+display: flex;
+grid-column: 1/-1;
+padding-left: 7px;
+}
+.team-avatar {
+position: relative;
+display: grid;
+flex: 0 0 36px;
+width: 36px;
+height: 35px;
+margin-left: -7px;
+place-items: center;
+padding: 0;
+border: 2px solid #fff;
+border-radius: 50%;
+background: linear-gradient(135deg,#c4b5fd,#818cf8);
+color: #312e81;
+font: 800 .6rem Inter,sans-serif;
+cursor: pointer;
+box-shadow: 0 2px 5px rgba(15,23,42,.1);
+transition: transform .25s cubic-bezier(.16,1,.3,1),box-shadow .25s,filter .25s;
+}
+.team-avatar:first-child {
+margin-left: 0;
+}
+.team-avatar:nth-child(2) {
+background: linear-gradient(135deg,#99f6e4,#2dd4bf);
+color: #134e4a;
+}
+.team-avatar:nth-child(3) {
+background: linear-gradient(135deg,#fed7aa,#fb923c);
+color: #7c2d12;
+}
+.team-avatar:nth-child(4) {
+background: linear-gradient(135deg,#fbcfe8,#f472b6);
+color: #831843;
+}
+.team-avatar:hover {
+z-index: 1;
+transform: translateY(-5px) scale(1.08);
+box-shadow: 0 7px 13px rgba(49,46,129,.2);
+}
+.team-avatar:active {
+transform: scale(.9);
+}
+.team-avatar.is-selected {
+z-index: 2;
+transform: translateY(-4px);
+box-shadow: 0 0 0 3px #fff,0 0 0 5px #6366f1;
+}
+.team-avatar:focus-visible {
+z-index: 3;
+outline: 2px solid #4f46e5;
+outline-offset: 3px;
+}
+.team-avatar.team-more {
+background: #e2e8f0;
+color: #475569;
+}
+.team-copy {
+min-width: 0;
+}
+.team-copy strong,.team-copy small {
+display: block;
+overflow: hidden;
+text-overflow: ellipsis;
+white-space: nowrap;
+}
+.team-copy strong {
+color: #0f172a;
+font-size: .8rem;
+}
+.team-copy small {
+margin-top: 4px;
+color: #64748b;
+font-size: .66rem;
+}
+.team-status {
+display: flex;
+align-items: center;
+align-self: center;
+gap: 6px;
+color: #059669;
+font-size: .65rem;
+font-weight: 800;
+}
+.team-status i {
+width: 7px;
+height: 7px;
+border-radius: 50%;
+background: #10b981;
+box-shadow: 0 0 0 3px #d1fae5;
+}`,
+js: initAvatars
+},
+{
+id: 'product', cat: 'Cards', title: 'Product purchase card', desc: 'A polished product card with working quantity controls and a live total.',
+html: `<div class="product-stage">
+<article class="product-card">
+  <div class="product-art"><span>STUDIO<br>HEADPHONES</span><i aria-hidden="true"></i></div>
+  <div class="product-info">
+    <span class="product-tag">BEST SELLER</span>
+    <h3>Studio headphones</h3>
+    <p>Immersive sound, made for focus.</p>
+    <div class="product-buy">
+      <div class="quantity-control" aria-label="Quantity">
+        <button class="quantity-decrease" type="button" aria-label="Decrease quantity">−</button>
+        <output class="product-quantity" data-min="1" data-max="9" aria-live="polite">1</output>
+        <button class="quantity-increase" type="button" aria-label="Increase quantity">+</button>
+      </div>
+      <strong class="product-price" data-unit-price="89">$89.00</strong>
+    </div>
+    <button class="product-add" type="button">Add 1 to bag</button>
+  </div>
+</article>
+</div>`,
+css: `.product-stage {
+display: grid;
+place-items: center;
+min-height: 356px;
+padding: 16px;
+background: #f1f5f9;
+font-family: Inter,sans-serif;
+}
+.product-card {
+display: grid;
+grid-template-columns: .85fr 1.15fr;
+width: min(100%,470px);
+min-height: 250px;
+overflow: hidden;
+border: 1px solid #e2e8f0;
+border-radius: 20px;
+background: #fff;
+box-shadow: 0 18px 44px rgba(15,23,42,.1);
+transition: transform .3s cubic-bezier(.16,1,.3,1),box-shadow .3s;
+}
+.product-card:hover {
+transform: translateY(-3px);
+box-shadow: 0 23px 50px rgba(15,23,42,.15);
+}
+.product-art {
+position: relative;
+display: flex;
+align-items: flex-start;
+padding: 20px 14px;
+overflow: hidden;
+background: radial-gradient(circle at 50% 55%,#4f46e5,#312e81 60%,#1e1b4b);
+color: rgba(255,255,255,.85);
+font-size: .65rem;
+font-weight: 800;
+letter-spacing: .12em;
+line-height: 1.5;
+}
+.product-art::before,.product-art::after {
+position: absolute;
+border: 7px solid rgba(255,255,255,.84);
+border-radius: 50%;
+content: "";
+}
+.product-art::before {
+top: 34%;
+left: 23%;
+width: 75px;
+height: 75px;
+box-shadow: 0 0 0 5px rgba(255,255,255,.12),0 12px 25px rgba(0,0,0,.2);
+}
+.product-art::after {
+top: 34%;
+right: 15%;
+width: 62px;
+height: 62px;
+border-width: 6px;
+box-shadow: 0 0 0 5px rgba(255,255,255,.12),0 12px 25px rgba(0,0,0,.2);
+}
+.product-art i {
+position: absolute;
+top: 31%;
+left: 40%;
+width: 30%;
+height: 46%;
+border-top: 5px solid rgba(255,255,255,.84);
+border-radius: 50% 50% 0 0;
+}
+.product-info {
+align-self: center;
+padding: 17px;
+}
+.product-tag {
+color: #6366f1;
+font-size: .58rem;
+font-weight: 800;
+letter-spacing: .1em;
+}
+.product-info h3 {
+margin: 8px 0 4px;
+color: #0f172a;
+font-size: .95rem;
+letter-spacing: -.03em;
+}
+.product-info p {
+margin: 0;
+color: #64748b;
+font-size: .68rem;
+}
+.product-buy {
+display: flex;
+align-items: center;
+justify-content: space-between;
+gap: 6px;
+margin: 14px 0 12px;
+}
+.quantity-control {
+display: flex;
+align-items: center;
+gap: 9px;
+padding: 3px;
+border: 1px solid #e2e8f0;
+border-radius: 9px;
+}
+.quantity-control button {
+width: 23px;
+height: 23px;
+border: 0;
+border-radius: 6px;
+background: #f1f5f9;
+color: #334155;
+font-size: .9rem;
+cursor: pointer;
+transition: transform .18s,background .18s,color .18s;
+}
+.quantity-control button:not(:disabled):hover {
+transform: scale(1.08);
+background: #e0e7ff;
+color: #4338ca;
+}
+.quantity-control button:not(:disabled):active {
+transform: scale(.9);
+}
+.quantity-pop {
+animation: quantity-pop .28s cubic-bezier(.16,1,.3,1);
+}
+@keyframes quantity-pop {
+50% { transform: scale(1.3); }
+}
+.price-pop {
+animation: price-pop .32s cubic-bezier(.16,1,.3,1);
+}
+@keyframes price-pop {
+50% { transform: translateY(-2px) scale(1.08); }
+}
+.quantity-control button:disabled {
+opacity: .4;
+cursor: not-allowed;
+}
+.step-actions button:not(:disabled):hover {
+transform: translateY(-2px);
+box-shadow: 0 6px 15px rgba(15,23,42,.1);
+}
+.step-actions button:not(:disabled):active {
+transform: scale(.96);
+}
+.product-quantity {
+min-width: 12px;
+color: #0f172a;
+font-size: .75rem;
+text-align: center;
+}
+.product-price {
+color: #0f172a;
+font-size: .85rem;
+font-variant-numeric: tabular-nums;
+}
+.product-add {
+width: 100%;
+padding: 10px 6px;
+border: 0;
+border-radius: 9px;
+background: #0f172a;
+color: #fff;
+font: 600 .7rem Inter,sans-serif;
+cursor: pointer;
+transition: background .2s,transform .2s;
+}
+.product-add:hover {
+transform: translateY(-1px);
+background: #4f46e5;
+}
+.product-add.is-added {
+background: #059669;
+box-shadow: 0 0 0 4px rgba(16,185,129,.13);
+animation: add-pop .35s cubic-bezier(.16,1,.3,1);
+}
+@keyframes add-pop {
+50% { transform: scale(1.04); }
+}
+@media (max-width:420px) {
+.product-card {
+  grid-template-columns: 1fr;
+}
+.product-art {
+  min-height: 105px;
+}
+.product-art::before,.product-art::after {
+  top: 30%;
+}
+.product-info {
+  padding: 14px;
+}
+}`,
+js: initProduct
+},
+{
+id: 'goal', cat: 'Layout', title: 'Goal progress ring', desc: 'A bold circular progress indicator with a button to move the goal forward.',
+html: `<div class="goal-stage">
+<div class="goal-card">
+  <span class="goal-caption">WEEKLY GOAL</span>
+  <div class="goal-ring" role="progressbar" aria-label="Weekly goal" aria-valuemin="0" aria-valuemax="100" aria-valuenow="65">
+    <span class="goal-value">65%</span>
+  </div>
+  <strong>Almost there</strong>
+  <small>Keep your momentum going.</small>
+  <button class="goal-add" type="button">Add 5%</button>
+</div>
+</div>`,
+css: `.goal-stage {
+display: grid;
+place-items: center;
+min-height: 356px;
+padding: 18px;
+background: linear-gradient(145deg,#eef2ff,#f8fafc 60%,#ecfeff);
+font-family: Inter,sans-serif;
+}
+.goal-card {
+display: grid;
+justify-items: center;
+width: min(100%,260px);
+padding: 20px;
+border: 1px solid rgba(255,255,255,.9);
+border-radius: 22px;
+background: rgba(255,255,255,.88);
+box-shadow: 0 18px 45px rgba(49,46,129,.12);
+}
+.goal-caption {
+color: #818cf8;
+font-size: .62rem;
+font-weight: 800;
+letter-spacing: .14em;
+}
+.goal-ring {
+display: grid;
+width: 118px;
+height: 118px;
+margin: 14px 0;
+place-items: center;
+border-radius: 50%;
+background: conic-gradient(#6366f1 var(--progress,65%),#e2e8f0 0);
+transition: background .55s cubic-bezier(.16,1,.3,1),filter .3s;
+}
+.goal-ring.goal-progress {
+filter: drop-shadow(0 0 8px rgba(99,102,241,.28));
+}
+.goal-ring::before {
+position: absolute;
+width: 94px;
+height: 94px;
+border-radius: 50%;
+background: #fff;
+content: "";
+}
+.goal-value {
+z-index: 1;
+color: #312e81;
+font-size: 1.55rem;
+font-weight: 800;
+letter-spacing: -.06em;
+font-variant-numeric: tabular-nums;
+}
+.goal-pop {
+animation: goal-pop .35s cubic-bezier(.16,1,.3,1);
+}
+@keyframes goal-pop {
+50% { transform: scale(1.2); }
+}
+.goal-card strong {
+color: #1e293b;
+font-size: .88rem;
+}
+.goal-card small {
+margin: 4px 0 14px;
+color: #64748b;
+font-size: .68rem;
+}
+.goal-add {
+padding: 8px 14px;
+border: 0;
+border-radius: 9px;
+background: #eef2ff;
+color: #4338ca;
+font: 600 .72rem Inter,sans-serif;
+cursor: pointer;
+transition: transform .2s,background .2s,color .2s,box-shadow .2s;
+}
+.goal-add:hover:not(:disabled) {
+transform: translateY(-2px);
+background: #4f46e5;
+color: #fff;
+box-shadow: 0 7px 17px rgba(79,70,229,.22);
+}
+.goal-add:active:not(:disabled) {
+transform: scale(.95);
+}
+.goal-add:disabled {
+opacity: .5;
+cursor: not-allowed;
+}`,
+js: initGoal
+},
+{
+id: 'music', cat: 'Cards', title: 'Mini music player', desc: 'A compact player with a tactile play state and animated equalizer bars.',
+html: `<div class="music-stage">
+<article class="music-player">
+  <div class="music-art" aria-hidden="true"><span>✦</span></div>
+  <div class="music-details">
+    <span class="music-status" aria-live="polite">Ready to play</span>
+    <strong>Midnight City</strong>
+    <small>M83 · Hurry Up, We're Dreaming</small>
+    <div class="music-equalizer" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+  </div>
+  <button class="music-toggle" type="button" aria-label="Play preview">&#9654;</button>
+</article>
+</div>`,
+css: `.music-stage {
+display: grid;
+place-items: center;
+min-height: 356px;
+padding: 20px;
+background: radial-gradient(circle at 85% 15%,rgba(124,58,237,.35),transparent 40%),#0b1020;
+font-family: Inter,sans-serif;
+}
+.music-player {
+display: flex;
+align-items: center;
+width: min(100%,420px);
+gap: 14px;
+padding: 14px;
+border: 1px solid rgba(255,255,255,.1);
+border-radius: 19px;
+background: rgba(255,255,255,.07);
+color: #fff;
+box-shadow: 0 20px 55px rgba(0,0,0,.3),inset 0 1px rgba(255,255,255,.08);
+-webkit-backdrop-filter: blur(14px);
+backdrop-filter: blur(14px);
+}
+.music-art {
+display: grid;
+width: 66px;
+height: 66px;
+flex: none;
+place-items: center;
+border-radius: 13px;
+background: radial-gradient(circle at 30% 25%,#f0abfc,#8b5cf6 40%,#1d4ed8);
+box-shadow: inset 0 0 24px rgba(255,255,255,.2);
+}
+.music-art span {
+color: rgba(255,255,255,.9);
+font-size: 1.65rem;
+text-shadow: 0 3px 15px rgba(30,27,75,.5);
+}
+.music-details {
+min-width: 0;
+flex: 1;
+}
+.music-status,.music-details strong,.music-details small {
+display: block;
+}
+.music-status {
+margin-bottom: 4px;
+color: #a5b4fc;
+font-size: .6rem;
+font-weight: 700;
+letter-spacing: .06em;
+text-transform: uppercase;
+}
+.music-details strong {
+overflow: hidden;
+font-size: .85rem;
+text-overflow: ellipsis;
+white-space: nowrap;
+}
+.music-details small {
+overflow: hidden;
+margin-top: 3px;
+color: #94a3b8;
+font-size: .66rem;
+text-overflow: ellipsis;
+white-space: nowrap;
+}
+.music-equalizer {
+display: flex;
+align-items: end;
+height: 13px;
+gap: 3px;
+margin-top: 8px;
+}
+.music-equalizer i {
+width: 3px;
+height: 4px;
+border-radius: 3px;
+background: #818cf8;
+}
+.music-player.is-playing .music-equalizer i {
+animation: music-bars .55s ease-in-out infinite alternate;
+}
+.music-player.is-playing .music-equalizer i:nth-child(2) {
+animation-delay: -.35s;
+}
+.music-player.is-playing .music-equalizer i:nth-child(3) {
+animation-delay: -.15s;
+}
+.music-player.is-playing .music-equalizer i:nth-child(4) {
+animation-delay: -.45s;
+}
+.music-player.is-playing .music-equalizer i:nth-child(5) {
+animation-delay: -.25s;
+}
+.music-toggle {
+display: grid;
+width: 40px;
+height: 40px;
+flex: none;
+place-items: center;
+border: 0;
+border-radius: 50%;
+background: #fff;
+color: #312e81;
+font-size: .85rem;
+cursor: pointer;
+transition: transform .2s,background .2s;
+}
+.music-toggle:hover {
+transform: scale(1.08);
+background: #e0e7ff;
+}
+.music-toggle:active {
+  transform: scale(.92);
+}
+.music-pop {
+  animation: music-pop .32s cubic-bezier(.16,1,.3,1);
+}
+@keyframes music-pop {
+  50% { transform: scale(1.14); }
+}
+@keyframes music-bars {
+to { height: 13px; }
+}`,
+js: initMusic
 }
 ];
 
