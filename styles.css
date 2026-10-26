@@ -57,6 +57,194 @@ body {
   transition: background-color .38s ease,color .38s ease,border-color .38s ease;
 }
 
+.app-loader {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  overflow: hidden;
+  background:
+    radial-gradient(460px 340px at 50% 44%,rgba(99,102,241,.13),transparent 72%),
+    linear-gradient(180deg,var(--bg),var(--bg-2));
+  opacity: 1;
+  transition: opacity .45s ease,visibility .45s ease;
+}
+
+.app-loader::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle,rgba(148,163,184,.28) .8px,transparent 1.3px);
+  background-size: 28px 28px;
+  mask-image: radial-gradient(ellipse at center,#000,transparent 76%);
+  pointer-events: none;
+}
+
+.app-loader.is-loaded {
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.app-loader-content {
+  position: relative;
+  display: flex;
+  width: min(100%,360px);
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  animation: loaderArrive .7s var(--ease) both;
+}
+
+.app-loader-mark {
+  position: relative;
+  display: grid;
+  width: 72px;
+  height: 72px;
+  margin-bottom: 24px;
+  place-items: center;
+  border: 1px solid rgba(165,180,252,.28);
+  border-radius: 23px;
+  background: linear-gradient(145deg,rgba(124,58,237,.18),rgba(34,211,238,.08));
+  box-shadow: 0 18px 50px -22px rgba(99,102,241,.85),inset 0 1px 0 rgba(255,255,255,.12);
+}
+
+.app-loader-mark::before,
+.app-loader-mark::after {
+  content: "";
+  position: absolute;
+  inset: -6px;
+  border: 1px solid transparent;
+  border-top-color: #a78bfa;
+  border-right-color: rgba(34,211,238,.75);
+  border-radius: 28px;
+  animation: loaderOrbit 1.8s linear infinite;
+}
+
+.app-loader-mark::after {
+  inset: -12px;
+  border-top-color: rgba(34,211,238,.7);
+  border-right-color: transparent;
+  border-bottom-color: rgba(236,72,153,.5);
+  border-radius: 32px;
+  animation-duration: 2.8s;
+  animation-direction: reverse;
+}
+
+.app-loader-mark span {
+  width: 34px;
+  height: 34px;
+  border-radius: 12px;
+  background: var(--grad);
+  box-shadow: 0 0 26px rgba(99,102,241,.6),inset 0 1px 0 rgba(255,255,255,.4);
+  animation: loaderPulse 1.5s ease-in-out infinite alternate;
+}
+
+.app-loader-brand {
+  margin: 0;
+  color: var(--text);
+  font-size: 1.2rem;
+  font-weight: 700;
+  letter-spacing: -.04em;
+}
+
+.app-loader-brand strong {
+  color: #a5b4fc;
+  font-weight: 700;
+}
+
+.app-loader-message {
+  margin: 8px 0 24px;
+  color: var(--muted);
+  font-size: .9rem;
+}
+
+.app-loader-progress {
+  width: min(100%,220px);
+  height: 4px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--line-2);
+}
+
+.app-loader-progress span {
+  display: block;
+  width: 42%;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--grad);
+  box-shadow: 0 0 14px rgba(99,102,241,.8);
+  animation: loaderProgress 1.25s var(--ease) infinite;
+}
+
+.app-loader-status {
+  margin: 12px 0 0;
+  color: var(--muted);
+  font: 500 .7rem 'JetBrains Mono',monospace;
+  letter-spacing: .02em;
+}
+
+.app-loader-error {
+  color: var(--muted);
+  font-size: .9rem;
+}
+
+.app-loader-error p {
+  margin: 0 0 14px;
+}
+
+.app-loader-error button {
+  padding: 9px 16px;
+  border: 1px solid var(--line-2);
+  border-radius: 10px;
+  background: var(--panel);
+  color: var(--text);
+  cursor: pointer;
+}
+
+.app-loader.has-error .app-loader-mark::before,
+.app-loader.has-error .app-loader-mark::after,
+.app-loader.has-error .app-loader-progress {
+  display: none;
+}
+
+@keyframes loaderArrive {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(.97);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes loaderOrbit {
+  to {
+    transform: rotate(1turn);
+  }
+}
+
+@keyframes loaderPulse {
+  to {
+    transform: scale(.88) rotate(-6deg);
+    filter: saturate(1.3);
+  }
+}
+
+@keyframes loaderProgress {
+  from {
+    transform: translateX(-115%);
+  }
+
+  to {
+    transform: translateX(250%);
+  }
+}
+
 .ambient-dots {
   position: fixed;
   inset: 0;
@@ -1180,6 +1368,14 @@ code {
   .hero-word {
     animation: none!important;
     transform: none;
+  }
+
+  .app-loader-content,
+  .app-loader-mark::before,
+  .app-loader-mark::after,
+  .app-loader-mark span,
+  .app-loader-progress span {
+    animation: none!important;
   }
 }
 

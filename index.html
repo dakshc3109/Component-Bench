@@ -19,6 +19,19 @@
     <link rel="stylesheet" href="styles.css">
   </head>
   <body>
+    <div class="app-loader" id="app-loader" role="status" aria-live="polite">
+      <div class="app-loader-content">
+        <div class="app-loader-mark" aria-hidden="true"><span></span></div>
+        <p class="app-loader-brand">Component <strong>Bench</strong></p>
+        <p class="app-loader-message">Setting up your component playground</p>
+        <div class="app-loader-progress" aria-hidden="true"><span></span></div>
+        <p class="app-loader-status">Loading 26 interactive previews</p>
+        <div class="app-loader-error" hidden>
+          <p>We couldn’t load the playground. Check your connection and try again.</p>
+          <button class="app-loader-retry" type="button">Try again</button>
+        </div>
+      </div>
+    </div>
     <div class="ambient-dots" aria-hidden="true"></div>
     <div class="custom-cursor" aria-hidden="true"></div>
     <header class="dock">
