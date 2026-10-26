@@ -19,6 +19,8 @@
     <link rel="stylesheet" href="styles.css">
   </head>
   <body>
+    <div class="ambient-dots" aria-hidden="true"></div>
+    <div class="custom-cursor" aria-hidden="true"></div>
     <header class="dock">
       <div class="dock-in">
         <div class="brand">
@@ -80,10 +82,39 @@
 
     <div class="wrap">
       <section class="hero">
-        <h1>UI elements you can feel before you copy them.</h1>
+        <h1 aria-label="UI elements you can feel before you copy them.">
+          <span class="hero-word" aria-hidden="true" style="--word-index: 0">UI</span>
+          <span class="hero-word" aria-hidden="true" style="--word-index: 1">elements</span>
+          <span class="hero-word" aria-hidden="true" style="--word-index: 2">you</span>
+          <span class="hero-word" aria-hidden="true" style="--word-index: 3">can</span>
+          <span class="hero-word" aria-hidden="true" style="--word-index: 4">feel</span>
+          <span class="hero-word" aria-hidden="true" style="--word-index: 5">before</span>
+          <span class="hero-word" aria-hidden="true" style="--word-index: 6">you</span>
+          <span class="hero-word" aria-hidden="true" style="--word-index: 7">copy</span>
+          <span class="hero-word" aria-hidden="true" style="--word-index: 8">them.</span>
+        </h1>
         <p class="sub">
-          Hover, click and tilt every component in a live preview. Then take the exact HTML, CSS and
-          JS with one click.
+          <span class="sub-word">Hover,</span>
+          <span class="sub-word">click</span>
+          <span class="sub-word">and</span>
+          <span class="sub-word">tilt</span>
+          <span class="sub-word">every</span>
+          <span class="sub-word">component</span>
+          <span class="sub-word">in</span>
+          <span class="sub-word">a</span>
+          <span class="sub-word">live</span>
+          <span class="sub-word">preview.</span>
+          <span class="sub-word">Then</span>
+          <span class="sub-word">take</span>
+          <span class="sub-word">the</span>
+          <span class="sub-word">exact</span>
+          <span class="sub-word">HTML,</span>
+          <span class="sub-word">CSS</span>
+          <span class="sub-word">and</span>
+          <span class="sub-word">JS</span>
+          <span class="sub-word">with</span>
+          <span class="sub-word">one</span>
+          <span class="sub-word">click.</span>
         </p>
         <div class="stats" id="stats"></div>
       </section>
