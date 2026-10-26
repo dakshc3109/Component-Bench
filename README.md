@@ -27,7 +27,8 @@ Explore a hands-on library of interactive UI components. Preview each one, tweak
 - **Take the code with you** — view, edit, copy, or download a standalone HTML example.
 - **Find your next favorite** — search by name, filter by category, and save components.
 - **Make it yours** — switch between dark and light themes.
-- **Feel the details** — enjoy playful motion, a glowing cursor, and a dotted background.
+- **Feel the details** — enjoy a polished loading screen, playful motion, a glowing cursor,
+  and a dotted background.
 
 ## The component lineup
 
