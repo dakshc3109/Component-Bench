@@ -4,92 +4,83 @@
 
 ### UI elements you can feel before you copy them.
 
-Explore a hands-on library of interactive UI components. Preview each one, tweak its code, and copy the HTML, CSS, and JavaScript when it feels right.
+I made Component Bench as a place to try out useful UI ideas before adding them to a project. You can play with each preview, look through the code, and copy the parts you want to use.
 
-<br>
+[Open the live site](https://dakshc3109.github.io/Component-Bench/) · [View the source](https://github.com/dakshc3109/Component-Bench)
 
-![Components](https://img.shields.io/badge/components-26-7c3aed?style=for-the-badge)
-![Categories](https://img.shields.io/badge/categories-6-06b6d4?style=for-the-badge)
-![Dependencies](https://img.shields.io/badge/dependencies-none-22c55e?style=for-the-badge)
-
-<br>
-
-[Open Component Bench](https://dakshc3109.github.io/Component-Bench/) · [View the repository](https://github.com/dakshc3109/Component-Bench)
+![26 components](https://img.shields.io/badge/components-26-7c3aed?style=for-the-badge)
+![6 categories](https://img.shields.io/badge/categories-6-06b6d4?style=for-the-badge)
+![No dependencies](https://img.shields.io/badge/dependencies-none-22c55e?style=for-the-badge)
 
 </div>
 
 ---
 
-## The fun part
+## What's inside
 
-- **Try before you copy** — interact with live component previews.
-- **Pick your viewport** — switch between desktop, tablet, and mobile preview sizes.
-- **Take the code with you** — view, edit, copy, or download a standalone HTML example.
-- **Find your next favorite** — search by name, filter by category, and save components.
-- **Make it yours** — switch between dark and light themes.
-- **Feel the details** — enjoy a polished loading screen, playful motion, a glowing cursor,
-  and a dotted background.
+There are 26 components across six categories. The previews are interactive, so buttons, switches, sliders, and other controls can be tried right on the page.
 
-## The component lineup
+You can also change the preview size, search or filter the gallery, save favorites, and switch between light and dark themes. When you find something you like, view or edit its HTML and CSS, copy the code, or download it as a standalone HTML file.
 
-| Cards | Buttons | Inputs |
-| --- | --- | --- |
-| Glassmorphism card | Neumorphic button | Toggle switch |
-| Pricing cards | Shine gradient button | Floating label input |
-| 3D flip card | Orbit border button | Range slider |
-| Spotlight card |  | Password field |
-| Avatar stack |  | Billing switcher |
-| Product purchase card |  | Task checklist |
-| Mini music player |  |  |
+## Browse the components
 
-| Navigation | Overlays | Layout |
-| --- | --- | --- |
-| Sliding pill navbar | Tooltips | Accordion |
-| Mobile menu | Modal dialog | Skeleton loading card |
-| Checkout stepper | Dropdown menu | Goal progress ring |
-|  | Toast notification |  |
+| Category | Components |
+| --- | --- |
+| **Cards** | Glassmorphism card, pricing cards, 3D flip card, spotlight card, avatar stack, product purchase card, mini music player |
+| **Buttons** | Neumorphic button, shine gradient button, orbit border button |
+| **Inputs** | Toggle switch, floating label input, range slider, password field, billing switcher, task checklist |
+| **Navigation** | Sliding pill navbar, mobile menu, checkout stepper |
+| **Overlays** | Tooltips, modal dialog, dropdown menu, toast notification |
+| **Layout** | Accordion, skeleton loading card, goal progress ring |
 
-## Make the most of the bench
+## How to use it
 
-1. Search for a component or pick a category.
-2. Play with its live preview and try the viewport buttons.
-3. Use the code tabs to inspect HTML, CSS, or JavaScript. Select **Edit** to experiment.
-4. Copy a single snippet, copy all three, or download the standalone HTML.
-5. Save components you want to come back to.
+1. Pick a category or search for a component.
+2. Try it out in the preview. Use the device buttons to see how it fits different screen sizes.
+3. Open the code tabs to see how it is made. You can edit the HTML or CSS right there.
+4. Copy the part you need, or download the whole example.
+5. Save a component if you want to come back to it later.
 
-Press **⌘K** on macOS or **Ctrl+K** on Windows and Linux to jump to search. Press **/** to focus search, and **Escape** to clear it.
+### Keyboard shortcuts
 
-## Under the hood
+- **⌘K** on macOS or **Ctrl+K** on Windows/Linux: focus search.
+- **/**: focus search when you are not already typing in a field.
+- **Escape**: clear and close search.
+- **Left/Right arrow keys**: move between code tabs.
 
-Component Bench is a small, dependency-free web project built with:
+## A quick look at the code
 
-- **HTML** for the page and component markup
-- **CSS** for the site, animations, themes, and component previews
-- **Vanilla JavaScript** for rendering, filtering, interactions, and copy tools
-
-The app is split into small ES modules under `app/`, with `script.js` as the entry point. Every preview has its own folder under `components/`, containing its metadata, markup, interaction logic, and stylesheet. Component styles are loaded into each preview and shown in the code viewer.
+I kept the project simple: it uses HTML, CSS, and regular JavaScript, with no packages to install or build step.
 
 ```text
-app/                  Gallery, code tools, theme, and motion modules
+index.html            Page structure
+styles.css            Shared site and gallery styles
+script.js             App entry point and loading screen
+app/
+  main.js             Loads components and starts the app
+  gallery.js          Search, filters, previews, and code tools
+  code.js             Code highlighting and copy support
+  icons.js            Shared interface icons
+  motion.js           Cursor, scrolling, and entrance motion
+  theme.js            Light and dark theme
 components/
   index.js            Component catalog
   glass/
-    index.js          Component metadata, markup, and behavior
-    styles.css        Styles scoped to the live preview
+    index.js          Component details, markup, and behavior
+    styles.css        Styles for its preview
   ...                 One folder per component
-script.js             App entry point
-styles.css            Shared site and gallery styles
-index.html            Page structure
 ```
 
-## A little comfort, too
+Each component has its own folder with its details, markup, behavior, and CSS. The files in `app/` handle the gallery, search, code viewer, theme, and motion. This makes it easier to find the right part when I want to update something.
 
-The interface supports keyboard navigation, includes accessible labels for interactive controls, and respects the operating system's reduced-motion preference. Theme and saved-component preferences are kept in your browser.
+## A note on accessibility
+
+You can use the keyboard to move around the page, and the animations respect your reduced-motion setting. Your theme and saved favorites stay in your browser.
 
 ---
 
 <div align="center">
 
-Made to explore, remix, and ship. ✨
+Built for trying things out and making them your own. ✨
 
 </div>
