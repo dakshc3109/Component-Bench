@@ -1195,3 +1195,10 @@ if (motionOK && 'IntersectionObserver' in window) {
     revealObserver.observe(element);
   });
 }
+
+if (motionOK) {
+  requestAnimationFrame(() => {
+    document.body.classList.add('intro-animate');
+    setTimeout(() => document.body.classList.remove('intro-animate'), 1900);
+  });
+}

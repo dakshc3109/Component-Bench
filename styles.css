@@ -74,6 +74,15 @@ nav.toc button[aria-pressed="true"]{border-color:transparent;background:var(--gr
 .scroll-reveal{opacity:0;transform:translate3d(0,28px,0) scale(.985);filter:blur(5px);transition:opacity .8s var(--ease),transform .9s var(--ease),filter .8s var(--ease);transition-delay:var(--reveal-delay,0ms);will-change:opacity,transform,filter}
 .scroll-reveal.is-visible{opacity:1;transform:translate3d(0,0,0) scale(1);filter:blur(0);will-change:auto}
 .item.scroll-reveal:hover{transform:translate3d(0,-2px,0) scale(1)}
+@keyframes introRise{0%{opacity:0;transform:translate3d(0,24px,0) scale(.98);filter:blur(8px)}70%{opacity:1;transform:translate3d(0,-2px,0) scale(1.005);filter:blur(0)}100%{opacity:1;transform:translate3d(0,0,0) scale(1);filter:blur(0)}}
+body.intro-animate .dock-in{animation:introRise .8s var(--ease) both}
+body.intro-animate .hero h1.is-visible{animation:introRise .85s var(--ease) .08s both}
+body.intro-animate .hero .sub.is-visible{animation:introRise .85s var(--ease) .2s both}
+body.intro-animate .hero .stats.is-visible{animation:introRise .85s var(--ease) .32s both}
+body.intro-animate .toc.is-visible{animation:introRise .85s var(--ease) .44s both}
+body.intro-animate .item.is-visible:nth-child(1){animation:introRise .85s var(--ease) .5s both}
+body.intro-animate .item.is-visible:nth-child(2){animation:introRise .85s var(--ease) .64s both}
+body.intro-animate .item.is-visible:nth-child(3){animation:introRise .85s var(--ease) .78s both}
 @media (min-width:1000px){.item.w7{grid-column:span 7}.item.w5{grid-column:span 5}}
 .item::before{content:"";position:absolute;inset:0;z-index:-1;border-radius:inherit;pointer-events:none;opacity:0;transition:opacity .5s var(--ease);background:radial-gradient(520px circle at var(--mx,50%) var(--my,50%),rgba(139,92,246,.2),transparent 60%)}
 .item::after{content:"";position:absolute;inset:-1px;padding:1px;border-radius:inherit;pointer-events:none;opacity:0;transition:opacity .5s var(--ease);background:radial-gradient(260px circle at var(--mx,50%) var(--my,50%),rgba(165,180,252,.8),transparent 65%);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);mask-composite:exclude}
