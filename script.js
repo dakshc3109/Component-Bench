@@ -2,6 +2,7 @@
 function initTilt(root = document) {
   const card = root.querySelector('.glass-card');
   card.addEventListener('pointermove', (e) => {
+    if (e.pointerType !== 'mouse') return;
     const r = card.getBoundingClientRect();
     const x = (e.clientX - r.left) / r.width - 0.5;
     const y = (e.clientY - r.top) / r.height - 0.5;
@@ -12,6 +13,27 @@ function initTilt(root = document) {
     card.style.setProperty('--rx', '0deg');
     card.style.setProperty('--ry', '0deg');
   });
+}
+
+function initSpotlight(root = document) {
+  const card = root.querySelector('.spot');
+  card.addEventListener('pointermove', (e) => {
+    const r = card.getBoundingClientRect();
+    card.style.setProperty('--x', (e.clientX - r.left) + 'px');
+    card.style.setProperty('--y', (e.clientY - r.top) + 'px');
+  });
+}
+
+function initRange(root = document) {
+  const input = root.querySelector('.rg input');
+  const out = root.querySelector('.rg output');
+  const paint = () => {
+    const p = ((input.value - input.min) / (input.max - input.min)) * 100;
+    input.style.setProperty('--p', p + '%');
+    out.textContent = input.value;
+  };
+  input.addEventListener('input', paint);
+  paint();
 }
 
 /* ---------- Component snippets ---------- */
@@ -31,9 +53,9 @@ const ITEMS = [
   display: grid;
   place-items: center;
   min-height: 356px;
-  padding: 32px;
+  padding: 24px 16px;
   overflow: hidden;
-  perspective: 900px;
+  isolation: isolate;
   background: linear-gradient(135deg, #4338ca, #db2777 60%, #f59e0b);
 }
 .glass-stage::before {
@@ -49,7 +71,8 @@ const ITEMS = [
 }
 .glass-card {
   position: relative;
-  width: 270px;
+  width: min(100%, 270px);
+  box-sizing: border-box;
   padding: 28px;
   border-radius: 22px;
   color: #fff;
@@ -59,8 +82,10 @@ const ITEMS = [
   -webkit-backdrop-filter: blur(16px);
   backdrop-filter: blur(16px);
   box-shadow: 0 24px 48px rgba(0, 0, 0, .28);
-  transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+  transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
   transition: transform .15s ease-out;
+  will-change: transform;
+  backface-visibility: hidden;
 }
 .glass-card h3 {
   margin: 14px 0 6px;
@@ -899,6 +924,315 @@ const ITEMS = [
   transform: none;
 }`,
   js: null
+},
+{
+  id: 'spotlight', cat: 'Cards', title: 'Spotlight card', desc: 'A soft light and a glowing edge follow the pointer across the surface.',
+  html: `<div class="spot-stage">
+  <article class="spot">
+    <span class="spot-dot"></span>
+    <h3>Spotlight</h3>
+    <p>A soft light follows your cursor across the surface and along its border.</p>
+    <span class="spot-meta">Move your pointer here</span>
+  </article>
+</div>`,
+  css: `.spot-stage {
+  display: grid;
+  place-items: center;
+  min-height: 356px;
+  padding: 24px;
+  background: #05070d;
+}
+.spot {
+  position: relative;
+  width: min(100%,320px);
+  padding: 28px;
+  overflow: hidden;
+  border: 1px solid #1f2937;
+  border-radius: 22px;
+  background: #0b0f19;
+  color: #e5e7eb;
+  font-family: Inter,sans-serif;
+}
+.spot::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(260px circle at var(--x,50%) var(--y,0%),rgba(99,102,241,.28),transparent 65%);
+  opacity: 0;
+  transition: opacity .3s;
+  pointer-events: none;
+}
+.spot::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  padding: 1px;
+  border-radius: inherit;
+  background: radial-gradient(160px circle at var(--x,50%) var(--y,0%),rgba(165,180,252,.9),transparent 70%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity .3s;
+  pointer-events: none;
+}
+.spot:hover::before,.spot:hover::after {
+  opacity: 1;
+}
+.spot-dot {
+  display: block;
+  width: 34px;
+  height: 34px;
+  margin-bottom: 16px;
+  border-radius: 10px;
+  background: linear-gradient(135deg,#6366f1,#22d3ee);
+}
+.spot h3 {
+  margin: 0 0 6px;
+  color: #fff;
+  font-size: 1.3rem;
+}
+.spot p {
+  margin: 0 0 18px;
+  color: #9ca3af;
+  font-size: .92rem;
+  line-height: 1.55;
+}
+.spot-meta {
+  color: #818cf8;
+  font-size: .8rem;
+  font-weight: 600;
+}`,
+  js: initSpotlight
+},
+{
+  id: 'orbit', cat: 'Buttons', title: 'Orbit border button', desc: 'A light orbits the border while the face reacts to hover and press.',
+  html: `<div class="orbit-stage">
+  <button class="orbit" type="button"><span>Launch</span></button>
+</div>`,
+  css: `.orbit-stage {
+  display: grid;
+  place-items: center;
+  min-height: 356px;
+  background: #05070d;
+}
+.orbit {
+  position: relative;
+  overflow: hidden;
+  padding: 2px;
+  border: 0;
+  border-radius: 14px;
+  background: none;
+  cursor: pointer;
+  transition: transform .35s cubic-bezier(.16,1,.3,1);
+}
+.orbit::before {
+  content: "";
+  position: absolute;
+  inset: -150%;
+  background: conic-gradient(from 0deg,transparent 0 70%,#22d3ee,#8b5cf6,transparent);
+  animation: orbit-spin 3s linear infinite;
+}
+.orbit span {
+  position: relative;
+  display: block;
+  padding: 14px 38px;
+  border-radius: 12px;
+  background: #0b0f19;
+  color: #fff;
+  font: 600 1rem Inter,sans-serif;
+  transition: background .3s;
+}
+.orbit:hover span {
+  background: #151a2b;
+}
+.orbit:active {
+  transform: scale(.96);
+}
+.orbit:focus-visible {
+  outline: 2px solid #a5b4fc;
+  outline-offset: 4px;
+}
+@keyframes orbit-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}`,
+  js: null
+},
+{
+  id: 'dropdown', cat: 'Overlays', title: 'Dropdown menu', desc: 'Native details element with a springy panel and a destructive action.',
+  html: `<div class="dd-stage">
+  <details class="dd">
+    <summary>Workspace</summary>
+    <ul>
+      <li><button type="button">Profile</button></li>
+      <li><button type="button">Billing</button></li>
+      <li><button type="button">Team settings</button></li>
+      <li class="danger"><button type="button">Sign out</button></li>
+    </ul>
+  </details>
+</div>`,
+  css: `.dd-stage {
+  display: grid;
+  justify-items: center;
+  align-items: start;
+  min-height: 356px;
+  padding: 64px 24px;
+  background: #f1f5f9;
+}
+.dd {
+  position: relative;
+  width: 220px;
+  font-family: Inter,sans-serif;
+}
+.dd summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+  background: #fff;
+  color: #0f172a;
+  font-weight: 600;
+  list-style: none;
+  cursor: pointer;
+  transition: border-color .2s,box-shadow .2s;
+}
+.dd summary::-webkit-details-marker {
+  display: none;
+}
+.dd summary::after {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border: solid #64748b;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg) translate(-2px,-2px);
+  transition: transform .3s;
+}
+.dd[open] summary {
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 4px rgba(79,70,229,.15);
+}
+.dd[open] summary::after {
+  transform: rotate(-135deg) translate(-2px,-2px);
+}
+.dd ul {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  margin: 0;
+  padding: 6px;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 16px 40px rgba(15,23,42,.16);
+  list-style: none;
+  animation: dd-in .3s cubic-bezier(.16,1,.3,1);
+}
+.dd li button {
+  width: 100%;
+  padding: 10px 12px;
+  border: 0;
+  border-radius: 9px;
+  background: none;
+  color: #334155;
+  font: 500 .9rem Inter,sans-serif;
+  text-align: left;
+  cursor: pointer;
+  transition: background .15s,color .15s;
+}
+.dd li button:hover {
+  background: #eef2ff;
+  color: #4338ca;
+}
+.dd .danger button {
+  color: #dc2626;
+}
+.dd .danger button:hover {
+  background: #fef2f2;
+  color: #b91c1c;
+}
+@keyframes dd-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(.97);
+  }
+}`,
+  js: null
+},
+{
+  id: 'range', cat: 'Inputs', title: 'Range slider', desc: 'Custom track with a live fill, a springy thumb and a value readout.',
+  html: `<div class="rg-stage">
+  <div class="rg">
+    <div class="rg-top">
+      <label for="vol">Volume</label>
+      <output>40</output>
+    </div>
+    <input id="vol" type="range" min="0" max="100" value="40">
+  </div>
+</div>`,
+  css: `.rg-stage {
+  display: grid;
+  place-items: center;
+  min-height: 356px;
+  padding: 24px;
+  background: #f1f5f9;
+}
+.rg {
+  width: min(100%,300px);
+  font-family: Inter,sans-serif;
+}
+.rg-top {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 14px;
+  color: #0f172a;
+  font-weight: 600;
+}
+.rg output {
+  color: #4f46e5;
+  font-variant-numeric: tabular-nums;
+}
+.rg input {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 8px;
+  border-radius: 999px;
+  outline: 0;
+  background: linear-gradient(90deg,#6366f1 var(--p,40%),#cbd5e1 var(--p,40%));
+  cursor: pointer;
+}
+.rg input::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 24px;
+  height: 24px;
+  border: 3px solid #6366f1;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 4px 12px rgba(99,102,241,.45);
+  transition: transform .25s cubic-bezier(.34,1.56,.64,1);
+}
+.rg input::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border: 3px solid #6366f1;
+  border-radius: 50%;
+  background: #fff;
+}
+.rg input:active::-webkit-slider-thumb {
+  transform: scale(1.2);
+}
+.rg input:focus-visible {
+  outline: 2px solid #4f46e5;
+  outline-offset: 6px;
+}`,
+  js: initRange
 }
 ];
 
@@ -1048,7 +1382,8 @@ ITEMS.forEach((it, i) => {
       '</div>' +
     '</div>' +
     '<div class="code"><div class="bar"><div class="tabs" role="tablist"><span class="glide"></span></div>' +
-      '<button class="copy" type="button"></button></div><pre><code></code></pre></div>';
+      '<div class="bar-r"><button class="chip edit" type="button" aria-pressed="false">Edit</button><button class="chip reset" type="button" hidden>Reset</button><button class="copy" type="button"></button></div></div>' +
+      '<pre><code></code></pre><textarea class="editor" spellcheck="false" aria-label="Edit code" hidden></textarea></div>';
   const h2 = sec.querySelector('h2'); h2.textContent = it.title;
   const bd = document.createElement('span'); bd.className = 'badge'; bd.textContent = it.cat; h2.appendChild(bd);
   sec.querySelector('.d').textContent = it.desc;
@@ -1059,8 +1394,8 @@ ITEMS.forEach((it, i) => {
   const host = sec.querySelector('.host');
   const shadow = host.attachShadow({ mode: 'open' });
   const mount = () => {
-    shadow.innerHTML = '<style>:host{display:flex;flex-direction:column}*{box-sizing:border-box}style~*{flex:1}' + it.css + '</style>' + it.html;
-    if (it.js) it.js(shadow);
+    shadow.innerHTML = '<style>:host{display:flex;flex-direction:column}*{box-sizing:border-box}style~*{flex:1}' + files.CSS + '</style>' + files.HTML;
+    if (it.js) { try { it.js(shadow); } catch (e) {} }
   };
   mount();
 
@@ -1087,6 +1422,8 @@ ITEMS.forEach((it, i) => {
   function show() {
     codeEl.innerHTML = HL[active](files[active]).split('\n').map((l) => '<span class="ln">' + l + '</span>').join('');
     tabBox.querySelectorAll('.tab').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.t === active)));
+    if (editing && editor.value !== files[active]) editor.value = files[active];
+    if (editing) editor.readOnly = active === 'JS';
     moveGlide();
   }
   tabs.forEach((t) => {
@@ -1101,6 +1438,41 @@ ITEMS.forEach((it, i) => {
     copyBtn.classList.remove('ok'); void copyBtn.offsetWidth; copyBtn.classList.add('ok');
     copyBtn.innerHTML = IC.check + '<span>Copied</span>'; burst(copyBtn);
     setTimeout(() => { copyBtn.classList.remove('ok'); copyBtn.innerHTML = IC.copy + '<span>Copy</span>'; }, 1600);
+  });
+
+  // Playground: edit the code and the preview re-renders live
+  const orig = { ...files };
+  const editor = sec.querySelector('.editor');
+  const editBtn = sec.querySelector('.edit');
+  const resetBtn = sec.querySelector('.reset');
+  const pre = codeEl.parentNode;
+  let editing = false;
+  const dirty = () => tabs.some((t) => files[t] !== orig[t]);
+  function syncEdit() {
+    pre.hidden = editing; editor.hidden = !editing;
+    editBtn.setAttribute('aria-pressed', String(editing)); editBtn.textContent = editing ? 'Done' : 'Edit';
+    resetBtn.hidden = !dirty(); sec.classList.toggle('is-edited', dirty());
+    show();
+  }
+  editBtn.addEventListener('click', () => { editing = !editing; syncEdit(); if (editing) editor.focus(); });
+  resetBtn.addEventListener('click', () => { Object.assign(files, orig); mount(); syncEdit(); toast('Reset to the original code'); });
+  editor.addEventListener('input', () => {
+    files[active] = editor.value;
+    if (active !== 'JS') mount();
+    resetBtn.hidden = !dirty(); sec.classList.toggle('is-edited', dirty());
+    show();
+  });
+  editor.addEventListener('keydown', (e) => {
+    if (e.key !== 'Tab') return;
+    e.preventDefault();
+    editor.setRangeText('  ', editor.selectionStart, editor.selectionEnd, 'end');
+    editor.dispatchEvent(new Event('input'));
+  });
+  tabBox.addEventListener('keydown', (e) => {
+    if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+    const bs = [...tabBox.querySelectorAll('.tab')], i = bs.findIndex((b) => b.dataset.t === active);
+    const n = bs[(i + (e.key === 'ArrowRight' ? 1 : bs.length - 1)) % bs.length];
+    n.click(); n.focus();
   });
 
   // Action deck
@@ -1140,6 +1512,9 @@ document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape' && document.activeElement === qEl) { qEl.value = ''; state.q = ''; apply(); qEl.blur(); }
 });
 paintStars(); apply();
+emptyEl.innerHTML = 'No components match. <button class="chip clear" type="button">Clear filters</button>';
+emptyEl.querySelector('.clear').addEventListener('click', () => { qEl.value = ''; state.q = ''; setCat('All'); });
+if (location.hash.length > 1) { const t = document.getElementById(decodeURIComponent(location.hash.slice(1))); if (t) setTimeout(() => t.scrollIntoView({ block: 'start' }), 60); }
 
 /* ---------- Theme (dark by default) ---------- */
 const root = document.documentElement;
