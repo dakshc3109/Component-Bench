@@ -1157,3 +1157,41 @@ themeBtn.addEventListener('click', () => {
   paintTheme();
 });
 paintTheme();
+
+/* ---------- Scroll motion ---------- */
+const motionOK = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const scrollProgress = document.querySelector('.scroll-progress');
+const dock = document.querySelector('.dock');
+let scrollFrame = 0;
+function updateScrollMotion() {
+  scrollFrame = 0;
+  const range = document.documentElement.scrollHeight - window.innerHeight;
+  const progress = range > 0 ? window.scrollY / range : 0;
+  document.documentElement.style.setProperty('--scroll-progress', String(progress));
+  document.documentElement.style.setProperty('--hero-parallax', Math.min(window.scrollY * 0.12, 90) + 'px');
+  dock.classList.toggle('is-scrolled', window.scrollY > 12);
+}
+function requestScrollMotion() {
+  if (!scrollFrame) scrollFrame = window.requestAnimationFrame(updateScrollMotion);
+}
+if (scrollProgress) {
+  window.addEventListener('scroll', requestScrollMotion, { passive: true });
+  window.addEventListener('resize', requestScrollMotion);
+  updateScrollMotion();
+}
+
+if (motionOK && 'IntersectionObserver' in window) {
+  const revealObserver = new IntersectionObserver((entries, observer) => {
+    entries.forEach((entry) => {
+      if (!entry.isIntersecting) return;
+      entry.target.classList.add('is-visible');
+      observer.unobserve(entry.target);
+    });
+  }, { threshold: 0.12, rootMargin: '0px 0px -6% 0px' });
+  const revealTargets = document.querySelectorAll('.hero h1, .hero .sub, .hero .stats, .toc, .item, .foot');
+  revealTargets.forEach((element, index) => {
+    element.classList.add('scroll-reveal');
+    element.style.setProperty('--reveal-delay', Math.min(index % 5, 4) * 75 + 'ms');
+    revealObserver.observe(element);
+  });
+}
